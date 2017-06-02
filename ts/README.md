@@ -1,0 +1,2 @@
+# ts
+The [TypeScript](https://www.typescriptlang.org/) source files for this project.  They can be built by running `npm install` in the project's top directory.

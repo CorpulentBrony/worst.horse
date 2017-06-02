@@ -1,0 +1,44 @@
+{
+  "name": "worst.horse",
+  "version": "1.0.0",
+  "description": "worst.horse web site",
+  "main": "js/index.js",
+  "directories": {
+    "bin": "bin/",
+    "lib": "ts/"
+  },
+  "scripts": {
+    "install": "find js/ -maxdepth 9 ! -name '.*' ! -name 'js' ! -name 'README.md' -delete && ./bin/tsc && ./bin/browserify js/index.js -o js/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CorpulentBrony/worst.horse.git"
+  },
+  "keywords": [
+    "worst horse",
+    "pony",
+    "applejack"
+  ],
+  "homepage": "https://worst.horse",
+  "bugs": {
+    "url": "https://github.com/CorpulentBrony/worst.horse/issues",
+    "email": "corpulent@brony.email"
+  },
+  "author": {
+    "name": "Corpulent Brony",
+    "email": "corpulent@brony.email",
+    "url": "https://youtube.com/c/CorpulentBrony"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "private": true,
+  "dependencies": {
+    "@types/webfontloader": ">=1.6.28",
+    "browserify": ">=14.4.0",
+    "typescript": "next",
+    "typings": ">=2.1.1",
+    "webfontloader": ">=1.6.28"
+  }
+}
