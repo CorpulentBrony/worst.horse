@@ -8,7 +8,7 @@
     "lib": "ts/"
   },
   "scripts": {
-    "install": "find js/ -maxdepth 9 ! -name '.*' ! -name 'js' ! -name 'README.md' -delete && ./bin/tsc && ./bin/browserify js/index.js -o js/main.js"
+    "install": "find js/ -maxdepth 9 ! -name '.*' ! -name 'js' ! -name 'README.md' -delete && ./bin/tsc && ./bin/tsc -p tsconfig.web.json && ./bin/browserify js/index.js -o js/main.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
   },
   "private": true,
   "dependencies": {
+    "@types/node": ">=7.0.27",
     "@types/webfontloader": ">=1.6.28",
     "browserify": ">=14.4.0",
     "typescript": "next",
