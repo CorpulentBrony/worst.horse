@@ -8,7 +8,7 @@
     "lib": "ts/"
   },
   "scripts": {
-    "install": "find js/ -maxdepth 9 ! -name '.*' ! -name 'js' ! -name 'README.md' -delete && ./bin/tsc && ./bin/tsc -p tsconfig.web.json && ./bin/browserify js/index.js -o js/main.js && chmod +x js/image.js",
+    "install": "find js/ -maxdepth 9 ! -name '.*' ! -name 'js' ! -name 'README.md' -delete && ./bin/tsc -p tsconfig.web.json && ./bin/browserify js/index.js -o js/main.js && ./bin/tsc && chmod +x js/image.js",
     "start": "node js/image.js &",
     "stop": "kill -9 $(ps aux | grep '[i]mage.js' | awk '{print $2}')"
   },

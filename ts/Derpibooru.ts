@@ -59,13 +59,13 @@ export namespace Derpibooru {
 	}
 
 	export interface Representations {
-		thumb_tiny: string;
-		thumb_small: string;
-		thumb: string;
-		small: string;
-		medium: string;
-		large: string;
-		tall: string;
+		thumb_tiny: string; // longest side will be 50
+		thumb_small: string; // longest side will be 150
+		thumb: string; // longest side will be 250
+		small: string; // height will be 240
+		medium: string; // height will be 600
+		large: string; // height will be 1024
+		tall: string; // width will be 1024
 		full: string;
 	}
 

@@ -59,17 +59,34 @@ export class Server {
 			}
 			const derpibooru = new Derpibooru({ filter_id: SEARCH_FILTER, q: SEARCH_TERMS });
 			const searchResult: Derpibooru.Image = await derpibooru.random();
-			// if (requestUrl.searchParams.has("html")) {
-			// 	response.setHeader("Content-Type", "text/html; charset=utf-8");
-			// 	const doc = new Libxmljs.Document();
-			// 	doc.node("html").attr({ lang: "en" })
-			// 		.node("meta").attr({ charset: "utf8" }).parent()
-			// 		.node("title", "this is a test").parent()
-			// 		.node("body", "this is a test document");
-			// 	response.write(`<!DOCTYPE html>\n${doc.toString({ type: "html", format: true }).replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">", "") }`);
-			// 	response.end();
-			// 	return;
-			// }
+			if (requestUrl.searchParams.has("html")) {
+				response.setHeader("Content-Type", "text/html; charset=utf-8");
+				const doc = new Libxmljs.Document();
+				const picture: Libxmljs.Element = doc.node<Libxmljs.Element>("html").attr({ lang: "en" })
+					.node("head")
+						.node("link").attr({ href: "https://derpicdn.net", rel: "preconnect" }).parent()
+						.node("meta").attr({ charset: "utf8" }).parent()
+						.node("title", "Worst Horse Image").parent().parent()
+					.node("body")
+						.node("template").attr({ id: "image" })
+							.node("picture");
+				for (const size in searchResult.representations)
+				response.write(`<!DOCTYPE html>\n${doc.toString({ type: "html", format: true }).replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">", "") }`);
+				response.end();
+				return;
+		// <template id="image">
+		// 	<picture>
+		// 		<source media="(max-width: 50px)" srcset="" type="">
+		// 		<source media="(max-width: 150px)" srcset="" type="">
+		// 		<source media="(max-width: 250px)" srcset="" type="">
+		// 		<source media="(max-height: 240px)" srcset="" type="">
+		// 		<source media="(max-height: 600px)" srcset="" type="">
+		// 		<source media="(max-height: 1024px)" srcset="" type="">
+		// 		<source media="(max-width: 1024px)" srcset="" type="">
+		// 		<img class="image" src="/image" alt="Applejack is worst horse">
+		// 	</picture>
+		// </template>
+			}
 
 			const searchResultUrl = new Url.URL("https:" + searchResult.representations.large);
 			let imageRequest: Stream.Transform = await Request.stream(searchResultUrl);
