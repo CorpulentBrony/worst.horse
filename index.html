@@ -4,28 +4,67 @@
 		<meta charset="utf-8">
 		<link href="https://fonts.googleapis.com" rel="preconnect">
 		<link href="https://fonts.gstatic.com" rel="preconnect">
-		<!-- Link: <https://fonts.gstatic.com>; rel=preconnect -->
-		<link as="style" href="https://fonts.googleapis.com/css?family=Roboto" hreflang="en" rel="preload" type="text/css">
-		<!-- Link: <https://fonts.googleapis.com/css?family=Roboto>; rel=preload; as=style; type="text/css" -->
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link as="style" href="/node_modules/reset-css/reset.css" hreflang="en" rel="preload" type="text/css">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 		<base href="https://worst.horse">
 		<link rel="publisher" href="https://plus.google.com/+CorpulentBrony" hreflang="en" type="text/html">
 		<link rel="bestpony" href="http://iwtcits.com" hreflang="en" type="text/html">
 		<script async src="js/main.js" type="application/javascript"></script>
-		<!-- <link href="https://fonts.googleapis.com/css?family=Roboto" hreflang="en" rel="stylesheet" type="text/css"> -->
 		<title>Worst Horse</title>
+		<link href="/node_modules/reset-css/reset.css" hreflang="en" rel="stylesheet" type="text/css">
 		<style>
-		h1 {
-			color: #faba5d;
-			font-family: "Roboto", sans-serif;
-			font-size: 8vw;
-			text-align: center;
-			-webkit-text-stroke: 1px #f37737;
-			text-stroke: 1px #f37737;
-		}
+			html, head, body {
+				margin: 0;
+				overflow: hidden;
+				padding: 0;
+			}
+
+			main section div {
+				text-align: center;
+				width: 100%;
+			}
+
+			h1 {
+				color: #faba5d;
+				font-family: "Roboto", sans-serif;
+				font-size: 6vmax;
+				margin-bottom: 20px;
+				margin-top: 10px;
+				text-align: center;
+				-webkit-text-stroke: 0.2vmax #f37737;
+				text-stroke: 0.2vmax #f37737;
+			}
+
+			main section header div {
+				height: auto;
+				width: 100%;
+			}
+
+			.image {
+				height: 70vh;
+				margin: 3px auto;
+				max-height: 70vh;
+				max-width: 100vw;
+			}
+
+			.main {
+				height: 100vh;
+			}
 		</style>
 	</head>
 	<body>
-		<h1>Applejack is Worst Horse</h1>
+		<main>
+			<section>
+				<div class="main">
+					<header><div><h1>Worst Horse</h1></div></header>
+					<div>
+						<picture>
+							<!-- <source type="image/webp" srcset="/image?webp"> -->
+							<img class="image" src="/image" alt="Applejack is worst horse">
+						</picture>
+					</div>
+				</div>
+			</section>
+		</main>
 	</body>
-</html>
+</html> 
