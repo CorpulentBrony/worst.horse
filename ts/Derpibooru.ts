@@ -43,6 +43,7 @@ export class Derpibooru {
 
 export namespace Derpibooru {
 	export interface Image {
+		aspect_ratio: number;
 		downvotes: number;
 		faves: number;
 		file_name: string;

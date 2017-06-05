@@ -1,5 +1,6 @@
 /// <reference path="./@types/libxmljs.d.ts" />
 /// <reference path="./Promisify.d.ts" />
+import { Map } from "./CustomTypes/Map";
 import { Derpibooru } from "./Derpibooru";
 import { ElapsedTime } from "./ElapsedTime";
 import * as File from "./File";
@@ -20,6 +21,54 @@ const SOCKET_FILE: string = "/var/www/html/worst.horse/image";
 
 type ListeningListenerFunction = (err?: Error, success?: void) => void;
 type ListenFunction = (path: string, listeningListener?: ListeningListenerFunction) => Net.Server;
+
+interface Dimensions {
+	height: number;
+	width: number;
+}
+
+type DimensionImage = Dimensions & { aspect_ratio: number };
+type ScaleDefinition = Partial<Dimensions> & { scale: "height" | "longest" | "width" };
+
+const scaleDefinitions = new Map<string, ScaleDefinition>();
+scaleDefinitions.set("thumb_tiny", { height: 50, scale: "longest", width: 50 })
+	.set("thumb_small", { height: 150, scale: "longest", width: 150 })
+	.set("thumb", { height: 250, scale: "longest", width: 250 })
+	.set("small", { height: 240, scale: "height" })
+	.set("medium", { height: 600, scale: "height" })
+	.set("large", { height: 1024, scale: "height" })
+	.set("tall", { scale: "width", width: 1024 });
+
+function scaleDimensions(image: Dimensions & { aspect_ratio: number }, scaleDefinition: ScaleDefinition): Dimensions | boolean {
+	let multiplier: number;
+
+	if ((scaleDefinition.scale === "height" && image.height > scaleDefinition.height && image.aspect_ratio < 1) || (scaleDefinition.scale === "width" && image.width > scaleDefinition.width && image.aspect_ratio > 1))
+		multiplier = 1 / image.aspect_ratio;
+	else
+		multiplier = image.aspect_ratio;
+
+	switch (scaleDefinition.scale) {
+		case "height":
+			return (image.height > scaleDefinition.height) ? { height: scaleDefinition.height, width: scaleDefinition.height * multiplier } : false;
+		case "width":
+			return (image.width > scaleDefinition.width) ? { height: scaleDefinition.width * multiplier, width: scaleDefinition.width } : false;
+		case "longest":
+			if (image.height <= scaleDefinition.height && image.width <= scaleDefinition.width)
+				return false;
+			else if (image.aspect_ratio >= 1) 
+				return scaleDimensions(image, { scale: "width", width: scaleDefinition.width });
+			else
+				return scaleDimensions(image, { scale: "height", height: scaleDefinition.height });
+	}
+}
+
+function appendSourceTags(image: Derpibooru.Image, picture: Libxmljs.Element): Libxmljs.Document {
+	const multiplier: { width: number, height: number } = { width: image.aspect_ratio >= 1 ? 1 : 1 / image.aspect_ratio, height: image.aspect_ratio >= 1 ? 1 / image.aspect_ratio : 1 };
+	if (image.width > 50 || image.height > 50)
+		picture.node("source").attr({ })
+	
+	return picture.doc();
+}
 
 export class Server {
 	private elapsedTime: ElapsedTime;
@@ -70,7 +119,7 @@ export class Server {
 					.node("body")
 						.node("template").attr({ id: "image" })
 							.node("picture");
-				for (const size in searchResult.representations)
+
 				response.write(`<!DOCTYPE html>\n${doc.toString({ type: "html", format: true }).replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">", "") }`);
 				response.end();
 				return;
