@@ -1,0 +1,3 @@
+[submodule "CustomTypes"]
+	path = CustomTypes
+	url = git@github.com:CorpulentBrony/CustomTypes
