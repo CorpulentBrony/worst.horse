@@ -1,3 +1,4 @@
+import { Set } from "./CustomTypes/Set";
 import * as Random from "./Random";
 import * as Request from "./Request";
 import * as Url from "url";
@@ -53,6 +54,7 @@ export namespace Derpibooru {
 		mime_type: string;
 		representations: Representations;
 		score: number;
+		source_url: string;
 		tags: string;
 		uploader: string;
 		upvotes: number;
@@ -74,4 +76,19 @@ export namespace Derpibooru {
 		search: Array<Image>;
 		total: number;
 	}
+
+	export function getArtist() {}
+
+	export function getSubtags(imageOrTags: Derpibooru.Image | string, targetTag: string): Set<string> {
+		if (!targetTag.endsWith(":"))
+			targetTag = targetTag + ":";
+		const matcher: RegExp = new RegExp(targetTag + "[^,]+", "ig");
+		const tags: string = (typeof imageOrTags === "string") ? imageOrTags : imageOrTags.tags;
+		const targetTags: Array<string> | null = tags.match(matcher);
+		
+		if (targetTags === null)
+			return new Set<string>();
+		return Set.from<string>(tags.match(matcher).map<string>((tag: string): string => tag.replace(targetTag, "")))
+	}
 }
+

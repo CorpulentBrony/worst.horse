@@ -1,6 +1,7 @@
 /// <reference path="./@types/libxmljs.d.ts" />
 /// <reference path="./Promisify.d.ts" />
 import { Map } from "./CustomTypes/Map";
+import { Set } from "./CustomTypes/Set";
 import { Derpibooru } from "./Derpibooru";
 import { ElapsedTime } from "./ElapsedTime";
 import * as File from "./File";
@@ -28,9 +29,9 @@ interface Dimensions {
 }
 
 type DimensionImage = Dimensions & { aspect_ratio: number };
-type ScaleDefinition = Partial<Dimensions> & { scale: "height" | "longest" | "width" };
+type ScaleDefinition = Partial<Dimensions> & ({ height: number, scale: "height" } | { height: number, scale: "longest", width: number } | { scale: "width", width: number });
 
-const scaleDefinitions = new Map<string, ScaleDefinition>();
+const scaleDefinitions = new Map<keyof Derpibooru.Representations, ScaleDefinition>();
 scaleDefinitions.set("thumb_tiny", { height: 50, scale: "longest", width: 50 })
 	.set("thumb_small", { height: 150, scale: "longest", width: 150 })
 	.set("thumb", { height: 250, scale: "longest", width: 250 })
@@ -39,7 +40,9 @@ scaleDefinitions.set("thumb_tiny", { height: 50, scale: "longest", width: 50 })
 	.set("large", { height: 1024, scale: "height" })
 	.set("tall", { scale: "width", width: 1024 });
 
-function scaleDimensions(image: Dimensions & { aspect_ratio: number }, scaleDefinition: ScaleDefinition): Dimensions | boolean {
+function round(x: number): number { return x + 0.5 << 1 >> 1; }
+
+function scaledDimensions(image: Dimensions & { aspect_ratio: number }, scaleDefinition: ScaleDefinition): Dimensions | boolean {
 	let multiplier: number;
 
 	if ((scaleDefinition.scale === "height" && image.height > scaleDefinition.height && image.aspect_ratio < 1) || (scaleDefinition.scale === "width" && image.width > scaleDefinition.width && image.aspect_ratio > 1))
@@ -49,18 +52,40 @@ function scaleDimensions(image: Dimensions & { aspect_ratio: number }, scaleDefi
 
 	switch (scaleDefinition.scale) {
 		case "height":
-			return (image.height > scaleDefinition.height) ? { height: scaleDefinition.height, width: scaleDefinition.height * multiplier } : false;
+			return (image.height > scaleDefinition.height) ? { height: scaleDefinition.height, width: round(scaleDefinition.height * multiplier) } : false;
 		case "width":
-			return (image.width > scaleDefinition.width) ? { height: scaleDefinition.width * multiplier, width: scaleDefinition.width } : false;
+			return (image.width > scaleDefinition.width) ? { height: round(scaleDefinition.width * multiplier), width: scaleDefinition.width } : false;
 		case "longest":
 			if (image.height <= scaleDefinition.height && image.width <= scaleDefinition.width)
 				return false;
 			else if (image.aspect_ratio >= 1) 
-				return scaleDimensions(image, { scale: "width", width: scaleDefinition.width });
+				return scaledDimensions(image, { scale: "width", width: scaleDefinition.width });
 			else
-				return scaleDimensions(image, { scale: "height", height: scaleDefinition.height });
+				return scaledDimensions(image, { scale: "height", height: scaleDefinition.height });
 	}
 }
+
+function buildSources(image: Derpibooru.Image): Set<string> {
+	let representations = new Map<keyof Derpibooru.Representations, Dimensions & { url: string }>();
+
+	for (const [size, dimension] of scaleDefinitions) {
+		const scaledDimension: Dimensions | boolean = scaledDimensions({ aspect_ratio: image.aspect_ratio, height: image.height, width: image.width }, dimension);
+
+		if (scaledDimension && typeof scaledDimension !== "boolean")
+			representations.set(size, { height: scaledDimension.height, url: image.representations[size], width: scaledDimension.width });
+	}
+	representations = representations.dedupe((a: Dimensions & { url: string }, b: Dimensions & { url: string }): boolean => a.width === b.width, (a: Dimensions & { url: string }, b: Dimensions & { url: string }): number => a.width - b.width);
+	// representations is now sorted and deduped, now to make it into a string.  remember the resultant html needs to include, according to derpibooru: all artists (see Derpibooru.getSubtags()), source_url, and link back to derpibooru page
+	return new Set<string>();
+}
+
+// for i = 1 to length(A)
+//     j ← i
+//     while j > 0 and A[j-1] > A[j]
+//         swap A[j] and A[j-1]
+//         j ← j - 1
+//     end while
+// end for
 
 function appendSourceTags(image: Derpibooru.Image, picture: Libxmljs.Element): Libxmljs.Document {
 	const multiplier: { width: number, height: number } = { width: image.aspect_ratio >= 1 ? 1 : 1 / image.aspect_ratio, height: image.aspect_ratio >= 1 ? 1 / image.aspect_ratio : 1 };
