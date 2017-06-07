@@ -1,7 +1,6 @@
 /// <reference path="./@types/libxmljs.d.ts" />
 /// <reference path="./Promisify.d.ts" />
 import { Map } from "./CustomTypes/Map";
-import { Set } from "./CustomTypes/Set";
 import { Derpibooru } from "./Derpibooru";
 import { ElapsedTime } from "./ElapsedTime";
 import * as File from "./File";
@@ -65,7 +64,7 @@ function scaledDimensions(image: Dimensions & { aspect_ratio: number }, scaleDef
 	}
 }
 
-function buildSources(image: Derpibooru.Image): Set<string> {
+function appendSourceTags(image: Derpibooru.Image, picture: Libxmljs.Element): Libxmljs.Document {
 	let representations = new Map<keyof Derpibooru.Representations, Dimensions & { url: string }>();
 
 	for (const [size, dimension] of scaleDefinitions) {
@@ -74,24 +73,15 @@ function buildSources(image: Derpibooru.Image): Set<string> {
 		if (scaledDimension && typeof scaledDimension !== "boolean")
 			representations.set(size, { height: scaledDimension.height, url: image.representations[size], width: scaledDimension.width });
 	}
-	representations = representations.dedupe((a: Dimensions & { url: string }, b: Dimensions & { url: string }): boolean => a.width === b.width, (a: Dimensions & { url: string }, b: Dimensions & { url: string }): number => a.width - b.width);
-	// representations is now sorted and deduped, now to make it into a string.  remember the resultant html needs to include, according to derpibooru: all artists (see Derpibooru.getSubtags()), source_url, and link back to derpibooru page
-	return new Set<string>();
-}
-
-// for i = 1 to length(A)
-//     j ← i
-//     while j > 0 and A[j-1] > A[j]
-//         swap A[j] and A[j-1]
-//         j ← j - 1
-//     end while
-// end for
-
-function appendSourceTags(image: Derpibooru.Image, picture: Libxmljs.Element): Libxmljs.Document {
-	const multiplier: { width: number, height: number } = { width: image.aspect_ratio >= 1 ? 1 : 1 / image.aspect_ratio, height: image.aspect_ratio >= 1 ? 1 / image.aspect_ratio : 1 };
-	if (image.width > 50 || image.height > 50)
-		picture.node("source").attr({ })
-	
+	let i: number = 1;
+	representations.dedupe((a: Dimensions & { url: string }, b: Dimensions & { url: string }): boolean => a.width === b.width, (a: Dimensions & { url: string }, b: Dimensions & { url: string }): number => a.width - b.width).forEach(
+		(representation: Dimensions & { url: string }, size: keyof Derpibooru.Representations, representations: Map<keyof Derpibooru.Representations, Dimensions & { url: string }>): void => {
+			if (i++ < representations.size)
+				picture.node("source").attr({ media: "(max-width: " + representation.width.toString() + "px)", srcset: "https:" + representation.url, type: image.mime_type });
+			else
+				picture.node("img").attr({ alt: "Applejack is worst horse", class: "image", src: "https:" + representation.url, type: image.mime_type });
+		}
+	);
 	return picture.doc();
 }
 
@@ -135,36 +125,29 @@ export class Server {
 			const searchResult: Derpibooru.Image = await derpibooru.random();
 			if (requestUrl.searchParams.has("html")) {
 				response.setHeader("Content-Type", "text/html; charset=utf-8");
-				const doc = new Libxmljs.Document();
-				const picture: Libxmljs.Element = doc.node<Libxmljs.Element>("html").attr({ lang: "en" })
+				let doc = new Libxmljs.Document();
+				const template: Libxmljs.Element = doc.node<Libxmljs.Element>("html").attr({ lang: "en" })
 					.node("head")
 						.node("link").attr({ href: "https://derpicdn.net", rel: "preconnect" }).parent()
 						.node("meta").attr({ charset: "utf8" }).parent()
 						.node("title", "Worst Horse Image").parent().parent()
 					.node("body")
-						.node("template").attr({ id: "image" })
-							.node("picture");
-
-				response.write(`<!DOCTYPE html>\n${doc.toString({ type: "html", format: true }).replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">", "") }`);
+						;//.node("template").attr({ id: "image" });
+				const picture: Libxmljs.Element = template.node("picture");
+				doc = appendSourceTags(searchResult, picture);
+				template.node("dl")
+					.node("dt", "Artist(s)").parent()
+					.node("dd", Derpibooru.getSubtags(searchResult, "artist").join(", ")).parent()
+					.node("dt", "Source").parent()
+					.node("dd", searchResult.source_url).parent().parent()
+				.node("div", "https://www.derpibooru.org/" + searchResult.id);
+				response.write(`<!DOCTYPE html>\n${doc.toString({ type: "html", format: true }).replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">", "").replace(/<\/source>/g, "") }`);
 				response.end();
 				return;
-		// <template id="image">
-		// 	<picture>
-		// 		<source media="(max-width: 50px)" srcset="" type="">
-		// 		<source media="(max-width: 150px)" srcset="" type="">
-		// 		<source media="(max-width: 250px)" srcset="" type="">
-		// 		<source media="(max-height: 240px)" srcset="" type="">
-		// 		<source media="(max-height: 600px)" srcset="" type="">
-		// 		<source media="(max-height: 1024px)" srcset="" type="">
-		// 		<source media="(max-width: 1024px)" srcset="" type="">
-		// 		<img class="image" src="/image" alt="Applejack is worst horse">
-		// 	</picture>
-		// </template>
 			}
 
 			const searchResultUrl = new Url.URL("https:" + searchResult.representations.large);
 			let imageRequest: Stream.Transform = await Request.stream(searchResultUrl);
-			console.log(`getting image: ${searchResultUrl.toString()}`);
 			response.setHeader("Cache-Control", "max-age=0, no-cache");
 
 			if (requestUrl.searchParams.has("webp")) {

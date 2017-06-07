@@ -62,6 +62,7 @@ export namespace Derpibooru {
 	}
 
 	export interface Representations {
+		[size: string]: string;
 		thumb_tiny: string; // longest side will be 50
 		thumb_small: string; // longest side will be 150
 		thumb: string; // longest side will be 250
@@ -88,7 +89,7 @@ export namespace Derpibooru {
 		
 		if (targetTags === null)
 			return new Set<string>();
-		return Set.from<string>(tags.match(matcher).map<string>((tag: string): string => tag.replace(targetTag, "")))
+		return Set.from<string>(targetTags.map<string>((tag: string): string => tag.replace(targetTag, "")))
 	}
 }
 
