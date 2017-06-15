@@ -1,6 +1,9 @@
 {
   "name": "worst.horse",
   "version": "1.0.0",
+  "config": {
+    "file": "config.json"
+  },
   "description": "worst.horse web site",
   "main": "js/index.js",
   "directories": {
@@ -42,7 +45,9 @@
     "@types/webfontloader": ">=1.6.28",
     "browserify": ">=14.4.0",
     "gm": ">=1.23.0",
+    "highwayhash": ">=2.1.1",
     "libxmljs": ">=0.18.4",
+    "redis": ">=2.7.1",
     "reset-css": ">=2.2.0",
     "typescript": "next",
     "typings": ">=2.1.1",

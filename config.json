@@ -1,0 +1,15 @@
+{
+	"bufferNullGzipped": [31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 203, 43, 205, 201, 1, 0, 79, 252, 203, 37, 4, 0, 0, 0],
+	"bufferOk": [79, 75],
+	"cacheDirectory": "/var/cache/httpd/worst.horse/image/cache",
+	"defaultMimeType": "application/octet-stream",
+	"defaultTextEncoding": "utf8",
+	"derpibooruSearchFilter": "41048",
+	"derpibooruSearchTerms": "applejack,solo,sad,-twilight sparkle,-fluttershy,-pinkie pie,-rainbow dash,-rarity",
+	"derpibooruSearchUrl": "https://derpibooru.org/search.json",
+	"keyBaseDigits": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+	"keyHashSalt": [253, 104, 241, 75, 22, 24, 204, 207, 57, 105, 34, 171, 71, 211, 166, 105, 161, 212, 196, 153, 221, 215, 152, 124, 229, 5, 169, 118, 238, 9, 75, 179],
+	"redisSocketPath": "/var/redis/redis.sock",
+	"requestAcceptEncoding": "deflate, gzip",
+	"serverSocketFile": "/var/www/html/worst.horse/image"
+}

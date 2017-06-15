@@ -1,5 +1,5 @@
 /// <reference path="./@types/libxmljs.d.ts" />
-/// <reference path="./Promisify.d.ts" />
+import { Config } from "./Config";
 import { Map } from "./CustomTypes/Map";
 import { Derpibooru } from "./Derpibooru";
 import { ElapsedTime } from "./ElapsedTime";
@@ -12,12 +12,12 @@ import * as Process from "process";
 import * as Request from "./Request";
 import * as Stream from "stream";
 import * as Url from "url";
-import * as Util from "util";
 
 const BUFFER_SECONDS: number = 30;
 const SEARCH_FILTER: string = "41048";
 const SEARCH_TERMS: string = "applejack,solo,sad,-twilight sparkle,-fluttershy,-pinkie pie,-rainbow dash,-rarity";
 const SOCKET_FILE: string = "/var/www/html/worst.horse/image";
+const STARTUP_RETRIES: number = 10;
 
 type ListeningListenerFunction = (err?: Error, success?: void) => void;
 type ListenFunction = (path: string, listeningListener?: ListeningListenerFunction) => Net.Server;
@@ -106,9 +106,25 @@ export class Server {
 
 	constructor() {
 		[this.elapsedTime, this.server] = [new ElapsedTime(), Http.createServer(this.requestHandler)];
+		this.server.on("error", (err: any): void => {
+			if (err.code === "EADDRINUSE") {
+				File.unlinkSync(SOCKET_FILE);
+			}
+		});
 	}
 
-	private listenAsync: ListenFunction = <any>Util.promisify((path: string, listeningListener?: ListeningListenerFunction): Net.Server => this.server.listen(path, listeningListener));
+	private async listen(path: string = SOCKET_FILE): Promise<void> {
+		try { await File.unlink(path); }
+		catch (err) {}
+		return new Promise<void>((resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void): void => {
+			this.server.listen(SOCKET_FILE, (err: Error, server: void): void => {
+				if (err)
+					reject(err);
+				else
+					resolve(server);
+			});
+		});
+	}
 
 	private requestHandler = async function requestHandler(request: Http.IncomingMessage, response: Http.ServerResponse): Promise<void> {
 		try {
@@ -166,10 +182,16 @@ export class Server {
 	}
 
 	public async startServer(): Promise<this> {
-		if (await File.exists(SOCKET_FILE)) {
-			await File.unlink(SOCKET_FILE);
+		try {
+			await this.listen();
+		} catch (err) {
+			if (err.code === "EADDRINUSE") {
+				await File.unlink(SOCKET_FILE);
+				this.listen();
+			}
+			else
+				throw err;
 		}
-		await this.listenAsync(SOCKET_FILE);
 		return this;
 	}
 }
