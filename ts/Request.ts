@@ -8,7 +8,7 @@ import * as Stream from "stream";
 import * as Url from "url";
 import * as Zlib from "zlib";
 
-const ACCEPT_ENCODING: string = "deflate, gzip";
+const ACCEPT_ENCODING: string = Process.env.npm_package_config_requestAcceptEncoding;
 const USER_AGENT: string = `${Process.env.npm_package_name}/${Process.env.npm_package_version} (${Process.platform}; ${Process.arch}; ${ACCEPT_ENCODING}; +${Process.env.npm_package_homepage}) node/${Process.version}`;
 
 export async function binary(url: Url.URL, additionalHeaders?: { [header: string]: string }): Promise<Buffer> {
@@ -66,5 +66,5 @@ export const string: (url: Url.URL, additionalHeaders?: { [header: string]: stri
 
 export async function text(url: Url.URL, additionalHeaders?: { [header: string]: string }): Promise<string> {
 	const data: Buffer = await binary(url, additionalHeaders);
-	return data.toString("utf8");
+	return data.toString(Process.env.npm_package_config_defaultTextEncoding);
 }

@@ -27,13 +27,4 @@ export async function shuffle<Value>(array: Array<Value>): Promise<Array<Value>>
 		result[j] = value;
 		return result;
 	}, Promise.resolve(new Array<Value>(array.length)));
-	// return Promise.all(await array.reduce<Promise<Array<Promise<Value>>>>(async (final: Promise<Array<Promise<Value>>>, value: Value, i: number): Promise<Array<Promise<Value>>> => {
-	// 	const j: number = await integer(i + 1);
-	// 	const result: Array<Promise<Value>> = await final;
-
-	// 	if (i !== j)
-	// 		result[i] = result[j];
-	// 	result[j] = Promise.resolve(value);
-	// 	return result;
-	// }, Promise.resolve(new Array<Promise<Value>>(array.length))));
 }

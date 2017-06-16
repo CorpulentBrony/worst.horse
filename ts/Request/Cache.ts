@@ -1,12 +1,13 @@
 import { Entry } from "./Cache/Entry";
-import { Key } from "./Cache/Key";
 import * as File from "../File";
+import { Key } from "./Cache/Key";
+import * as Process from "process";
 import { Redis } from "./Cache/Redis";
 import * as Util from "util";
 
-const REDIS: Redis = new Redis("/var/redis/redis.sock");
-const DEFAULT_MIME_TYPE: string = "application/octet-stream";
-export const DIR: string = "/var/cache/httpd/worst.horse/image/cache";
+const REDIS: Redis = new Redis(Process.env.npm_package_config_redisSocketPath);
+const DEFAULT_MIME_TYPE: string = Process.env.npm_package_config_defaultMimeType;
+export const DIR: string = Process.env.npm_package_config_cacheDirectory;
 
 /*
 caching strategy:

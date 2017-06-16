@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 import * as Fs from "fs";
 import * as Path from "path";
+import * as Process from "process";
 import { promisify } from "./Promisify";
 import * as Stream from "stream";
 
@@ -29,7 +30,7 @@ export const unlink: (file: string | Buffer) => Promise<void> = promisify<void>(
 export const unlinkSync: (file: string) => void = Fs.unlinkSync;
 
 export async function unlinkDirFiles(directory: string | Buffer, depth: number = 0): Promise<RecursiveStringArray> {
-	const dir: string = (typeof directory !== "string") ? directory.toString("utf8") : directory;
+	const dir: string = (typeof directory !== "string") ? directory.toString(Process.env.npm_package_config_defaultTextEncoding) : directory;
 	const files: Array<string> = await readDir(directory);
 	return Promise.all<RecursiveStringValue>(await files.reduce<Promise<Array<Promise<RecursiveStringValue>>>>(async (result: Promise<Array<Promise<RecursiveStringValue>>>, fileName: string): Promise<Array<Promise<RecursiveStringValue>>> => {
 		const files: Array<Promise<RecursiveStringValue>> = await result;
@@ -78,7 +79,7 @@ export namespace Read {
 
 	export async function string(file: string): Promise<string> {
 		const result: Buffer = await buffer(file);
-		return result.toString("utf8");
+		return result.toString(Process.env.npm_package_config_defaultTextEncoding);
 	}
 }
 
@@ -118,5 +119,5 @@ export namespace Write {
 		return new Promise<void>((resolve: () => void, reject: (reason?: any) => void): void => { readStream.pipe<Fs.WriteStream>(writeStream).on("finish", (): void => resolve()); });
 	}
 
-	export async function string(file: string, contents: string): Promise<void> { buffer(file, Buffer.from(contents, "utf8")); }
+	export async function string(file: string, contents: string): Promise<void> { buffer(file, Buffer.from(contents, Process.env.npm_package_config_defaultTextEncoding)); }
 }

@@ -1,9 +1,11 @@
 /// <reference path="../../@types/HighwayHash.d.ts" />
 import { Buffer } from "buffer";
 import * as HighwayHash from "highwayhash";
+import * as Process from "process";
+
 // key is hash of url
-const DIGITS: string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const SALT: Buffer = Buffer.from([0xfd, 0x68, 0xf1, 0x4b, 0x16, 0x18, 0xcc, 0xcf, 0x39, 0x69, 0x22, 0xab, 0x47, 0xd3, 0xa6, 0x69, 0xa1, 0xd4, 0xc4, 0x99, 0xdd, 0xd7, 0x98, 0x7c, 0xe5, 0x05, 0xa9, 0x76, 0xee, 0x09, 0x4b, 0xb3]);
+const DIGITS: string = Process.env.npm_package_config_keyBaseDigits;
+const SALT: Buffer = Buffer.from(Process.env.npm_package_config_keyHashSalt);
 
 export class Key {
 	private static cache = new Map<string, string>();

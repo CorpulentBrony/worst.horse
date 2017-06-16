@@ -1,5 +1,4 @@
 /// <reference path="./@types/libxmljs.d.ts" />
-import { Config } from "./Config";
 import { Map } from "./CustomTypes/Map";
 import { Derpibooru } from "./Derpibooru";
 import { ElapsedTime } from "./ElapsedTime";
@@ -14,10 +13,9 @@ import * as Stream from "stream";
 import * as Url from "url";
 
 const BUFFER_SECONDS: number = 30;
-const SEARCH_FILTER: string = "41048";
-const SEARCH_TERMS: string = "applejack,solo,sad,-twilight sparkle,-fluttershy,-pinkie pie,-rainbow dash,-rarity";
-const SOCKET_FILE: string = "/var/www/html/worst.horse/image";
-const STARTUP_RETRIES: number = 10;
+const SEARCH_FILTER: string = Process.env.npm_package_config_derpibooruSearchFilter;
+const SEARCH_TERMS: string = Process.env.npm_package_config_derpibooruSearchTerms;
+const SOCKET_FILE: string = Process.env.npm_package_config_serverSocketFile;
 
 type ListeningListenerFunction = (err?: Error, success?: void) => void;
 type ListenFunction = (path: string, listeningListener?: ListeningListenerFunction) => Net.Server;

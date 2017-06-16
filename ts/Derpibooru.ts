@@ -1,9 +1,10 @@
-import { Set } from "./CustomTypes/Set";
+import * as Process from "process";
 import * as Random from "./Random";
 import * as Request from "./Request";
+import { Set } from "./CustomTypes/Set";
 import * as Url from "url";
 
-const SEARCH_URL: string = "https://derpibooru.org/search.json";
+const SEARCH_URL: string = Process.env.npm_package_config_derpibooruSearchUrl;
 
 type Query = Url.URLSearchParams | string | { [key: string]: string | Array<string> } | Iterable<[string, string]>;
 

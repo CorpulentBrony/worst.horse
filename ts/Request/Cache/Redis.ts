@@ -1,11 +1,12 @@
 /// <reference path="../../@types/redis.d.ts" />
 import { Buffer } from "buffer";
+import * as Process from "process";
 import { promisify, promisifyAsync } from "../../Promisify";
 import * as NodeRedis from "redis";
 import * as Zlib from "zlib";
 
-const BUFFER_NULL_GZIP: Buffer = Buffer.from([0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xcb, 0x2b, 0xcd, 0xc9, 0x01, 0x00, 0x4f, 0xfc, 0xcb, 0x25, 0x04, 0x00, 0x00, 0x00]);
-const BUFFER_OK: Buffer = Buffer.from([0x4f, 0x4b]);
+const BUFFER_NULL_GZIP: Buffer = Buffer.from(Process.env.npm_package_config_bufferNullGzipped);
+const BUFFER_OK: Buffer = Buffer.from(Process.env.npm_package_config_bufferOk);
 
 // the node-redis package is kinda shit and doesn't match my style, so I'm going to wrap it to make what i want to use async
 export class Redis {
@@ -22,7 +23,7 @@ export class Redis {
 
 	public async getCompressedBuffer(key: string): Promise<Buffer> { //return Buffer.from(await this.getCompressedBinary(key), "binary"); 
 		return new Promise<Buffer>((resolve: (value: Buffer | PromiseLike<Buffer>) => void, reject: (reason?: any) => void): void => {
-			this.client.get<Buffer>(Buffer.from(key, "utf8"), (err: Error | null, reply: Buffer): void => {
+			this.client.get<Buffer>(Buffer.from(key, Process.env.npm_package_config_defaultTextEncoding), (err: Error | null, reply: Buffer): void => {
 				if (err)
 					reject(err);
 				else
@@ -34,7 +35,7 @@ export class Redis {
 
 	public async getString(key: string): Promise<string> {
 		const buffer: Buffer = await this.getBuffer(key);
-		return buffer.toString("utf8");
+		return buffer.toString(Process.env.npm_package_config_defaultTextEncoding);
 	}
 
 	public async hgetall<T = { [key: string]: string }>(key: string): Promise<T> { return promisify<T>(this.client.hgetall)(key); 
@@ -63,12 +64,12 @@ export class Redis {
 			};
 
 			if (ttlMs === undefined)
-				this.client.set<Buffer>(Buffer.from(key, "utf8"), value, callback);
+				this.client.set<Buffer>(Buffer.from(key, Process.env.npm_package_config_defaultTextEncoding), value, callback);
 			else
-				this.client.set<Buffer>(Buffer.from(key, "utf8"), value, "EX", ttlMs, callback);
+				this.client.set<Buffer>(Buffer.from(key, Process.env.npm_package_config_defaultTextEncoding), value, "EX", ttlMs, callback);
 		});
 		return response instanceof Buffer && Buffer.compare(response, BUFFER_OK) === 0;
 	}
 	public async setObject<T = any>(key: string, value: T, ttlMs?: number): Promise<boolean> { return this.setString(key, JSON.stringify(value), ttlMs); }
-	public async setString(key: string, value: string, ttlMs?: number): Promise<boolean> { return this.setBuffer(key, Buffer.from(value, "utf8"), ttlMs); }
+	public async setString(key: string, value: string, ttlMs?: number): Promise<boolean> { return this.setBuffer(key, Buffer.from(value, Process.env.npm_package_config_defaultTextEncoding), ttlMs); }
 }
