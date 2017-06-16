@@ -5,8 +5,8 @@ import { promisify, promisifyAsync } from "../../Promisify";
 import * as NodeRedis from "redis";
 import * as Zlib from "zlib";
 
-const BUFFER_NULL_GZIP: Buffer = Buffer.from(Process.env.npm_package_config_bufferNullGzipped);
-const BUFFER_OK: Buffer = Buffer.from(Process.env.npm_package_config_bufferOk);
+const BUFFER_NULL_GZIP: Buffer = Buffer.from(JSON.parse(Process.env.npm_package_config_bufferNullGzipped));
+const BUFFER_OK: Buffer = Buffer.from(JSON.parse(Process.env.npm_package_config_bufferOk));
 
 // the node-redis package is kinda shit and doesn't match my style, so I'm going to wrap it to make what i want to use async
 export class Redis {
@@ -17,6 +17,28 @@ export class Redis {
 		if (!Redis.clients.has(socket))
 			Redis.clients.set(socket, NodeRedis.createClient({ detect_buffers: true, path: socket }));
 		this.client = Redis.clients.get(socket)!;
+	}
+
+	public async del(...keys: Array<string>): Promise<number> {
+		return new Promise<number>((resolve: (value: number | PromiseLike<number>) => void, reject: (reason?: any) => void): void => {
+			this.client.del(...keys, (err: Error | null, reply: number): void => {
+				if (err)
+					reject(err);
+				else
+					resolve(reply);
+			});
+		});
+	}
+
+	public async flush(): Promise<boolean> {
+		return new Promise<boolean>((resolve: (value: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void): void => {
+			this.client.flushdb((err: Error | null, reply: string): void => {
+				if (err)
+					reject(err);
+				else
+					resolve(reply === "OK");
+			});
+		});
 	}
 
 	public async getBuffer(key: string): Promise<Buffer> { return promisifyAsync<Buffer>(Zlib.gunzip)(this.getCompressedBuffer(key)); }

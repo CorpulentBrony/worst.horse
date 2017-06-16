@@ -161,7 +161,7 @@ export class Server {
 			}
 
 			const searchResultUrl = new Url.URL("https:" + searchResult.representations.large);
-			let imageRequest: Stream.Transform = await Request.stream(searchResultUrl);
+			let imageRequest: Stream.Readable = await Request.stream(searchResultUrl);
 			response.setHeader("Cache-Control", "max-age=0, no-cache");
 
 			if (requestUrl.searchParams.has("webp")) {

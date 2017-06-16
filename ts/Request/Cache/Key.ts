@@ -5,7 +5,7 @@ import * as Process from "process";
 
 // key is hash of url
 const DIGITS: string = Process.env.npm_package_config_keyBaseDigits;
-const SALT: Buffer = Buffer.from(Process.env.npm_package_config_keyHashSalt);
+const SALT: Buffer = Buffer.from(JSON.parse(Process.env.npm_package_config_keyHashSalt));
 
 export class Key {
 	private static cache = new Map<string, string>();

@@ -10,7 +10,6 @@ type RecursiveStringValue = string | RecursiveStringArray;
 interface RecursiveStringArray extends Array<RecursiveStringValue> {};
 
 export async function access(file: string, mode: number = Fs.constants.F_OK): Promise<boolean> {
-	// return promisify<boolean>(Fs.access)(file, mode);
 	return new Promise<boolean>((resolve: (value: boolean | PromiseLike<boolean>) => void): void => Fs.access(file, mode, (err: Error): void => resolve(!Boolean(err))));
 }
 
@@ -113,8 +112,8 @@ export namespace Write {
 	export async function json<T>(file: string, contents: T): Promise<void> { string(file, JSON.stringify(contents)); }
 
 	export async function stream(file: string, readStream: Stream.Readable): Promise<void> {
-		if (!(await access(file, Fs.constants.F_OK | Fs.constants.W_OK)))
-			throw new Error(`File ${file} does not exist or you do not have permissions to write to it.`);
+		// if (!(await access(file, Fs.constants.F_OK | Fs.constants.W_OK)))
+		// 	throw new Error(`File ${file} does not exist or you do not have permissions to write to it.`);
 		const writeStream: Fs.WriteStream = Fs.createWriteStream(file, <any>{ defaultEncoding: "binary" });
 		return new Promise<void>((resolve: () => void, reject: (reason?: any) => void): void => { readStream.pipe<Fs.WriteStream>(writeStream).on("finish", (): void => resolve()); });
 	}
