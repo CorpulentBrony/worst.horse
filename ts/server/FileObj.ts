@@ -4,7 +4,6 @@ import * as Fs from "fs";
 import * as Path from "path";
 import * as Stream from "stream";
 
-// TODO: create method or getter that will save piped in stream to the file, a la https://stackoverflow.com/questions/19553837/node-js-piping-the-same-readable-stream-into-multiple-writable-targets
 class SaveThroughStream extends Stream.Transform {
 	private buffers: Array<Buffer>;
 	private file: FileObj;

@@ -7,37 +7,7 @@ import * as Util from "util";
 
 const REDIS: Redis = new Redis(Process.env.npm_package_config_redisSocketPath);
 
-/*
-caching strategy:
-
-when making a request:
-	check if hash exists in cache.  if it does, check the cached file exists.  check if cached file is still alive by checking expire date in cache.  if it is alive, then serve it.  if not, send request with proper If-None-Match header
-
-	does hash exist in redis?
-		yes: does the local file exist?
-			yes: is the file marked as expired in redis with an etag value?
-				yes: send request with proper If-None-Match header
-					was response http code 304?
-						yes: update redis with value in Cache-Control header and serve the local file (if no Cache-Control amount, default should be 90 seconds)
-						no: serve returned file and cache()
-				no: serve the cached file
-			no: request the file and cache()
-		no: request the file and cache()
-
-cache()
-	does response have a Cache-Control header?
-		yes: create hash, save local file, save to redis
-			Cache-Control responses: 
-				no-cache: if headers have etag
-					yes: set expiration date to now, forcing future requests to check etag as described above
-					no: don't cache
-				no-store: don't cache
-				max-age: cache and set expiration as value in seconds from current date/time
-		no: is there a Expires header?
-			yes: cache and set the expiration date to the value
-			no: do not cache
-	set the Age header if returning from cache
-*/
+// TODO: maybe something to clean up cache periodically or something?
 
 type Splitter = { [Symbol.split](string: string, limit?: number): Array<string> };
 

@@ -1,0 +1,38 @@
+@charset "UTF-8";
+html, head, body {
+  font-family: "Open Sans", sans-serif;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+main section div {
+  text-align: center;
+  width: 100%;
+}
+main section .main {
+  height: 100vh;
+}
+main section .main header div h1 {
+  color: #faba5d;
+  font-size: 6vmax;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  text-align: center;
+  -webkit-text-stroke: 0.2vmax #f37737;
+  text-stroke: 0.2vmax #f37737;
+}
+main section .main #picture {
+  height: auto;
+  width: 100%;
+}
+main section .main #picture .image {
+  height: 70vh;
+  margin: 3px auto;
+  max-height: 70vh;
+  max-width: 100vw;
+}
+
+/* – */
+
+/*# sourceMappingURL=index.css.map */

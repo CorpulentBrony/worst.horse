@@ -32,7 +32,6 @@ export async function json<T>(url: Url.URL, additionalHeaders?: { [header: strin
 export async function stream(url: Url.URL, additionalHeaders: { [header: string]: string } = {}): Promise<Stream.Readable> {
 	const urlString: string = url.toString();
 	let cacheEntry: Cache.Entry | boolean = await Cache.query(urlString);
-	let etag: string | undefined;
 
 	if (Cache.isEntry(cacheEntry) && await cacheEntry.fileExists)
 		if (cacheEntry.isExpired)

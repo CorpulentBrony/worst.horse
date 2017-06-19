@@ -20,10 +20,7 @@
 		"target": "es2017"
 	},
 	"compileOnSave": true,
-	"exclude": [
-		"typings/Promise.d.ts"
-	],
 	"files": [
-		"ts/image.ts"
+		"ts/server/image.ts"
 	]
 }

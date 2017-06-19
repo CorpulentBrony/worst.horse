@@ -7,9 +7,10 @@
     "cacheDirectory": "/var/cache/httpd/worst.horse/image/cache",
     "defaultMimeType": "application/octet-stream",
     "defaultTextEncoding": "utf8",
+    "derpibooruCanonical": "https://derpibooru.org",
     "derpibooruSearchFilter": "41048",
     "derpibooruSearchTerms": "applejack,solo,sad,-twilight sparkle,-fluttershy,-pinkie pie,-rainbow dash,-rarity",
-    "derpibooruSearchUrl": "https://derpibooru.org/search.json",
+    "derpibooruSearchUrl": "/search.json",
     "keyBaseDigits": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
     "keyHashSalt": "[253, 104, 241, 75, 22, 24, 204, 207, 57, 105, 34, 171, 71, 211, 166, 105, 161, 212, 196, 153, 221, 215, 152, 124, 229, 5, 169, 118, 238, 9, 75, 179]",
     "redisSocketPath": "/var/redis/redis.sock",
@@ -17,14 +18,14 @@
     "serverSocketFile": "/var/www/html/worst.horse/image"
   },
   "description": "worst.horse web site",
-  "main": "js/index.js",
+  "main": "js/server/image.js",
   "directories": {
     "bin": "bin/",
     "lib": "ts/"
   },
   "scripts": {
     "install": "bin/build",
-    "start": "node js/image.js &",
+    "start": "node js/server/image.js &",
     "stop": "kill -9 $(ps aux | grep '[i]mage.js' | awk '{print $2}')"
   },
   "repository": {
@@ -62,7 +63,7 @@
     "redis": ">=2.7.1",
     "reset-css": ">=2.2.0",
     "typescript": "next",
-    "typings": ">=2.1.1",
-    "webfontloader": ">=1.6.28"
+    "webfontloader": ">=1.6.28",
+    "whatwg-fetch": ">=2.0.3"
   }
 }

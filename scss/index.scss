@@ -1,0 +1,60 @@
+$colors: (
+	applejack: (stroke: #f37737, text: #faba5d)
+);
+$color: map-get($colors, applejack);
+$font: "Open Sans", sans-serif;
+$header-font-size: 6vmax;
+$image-height: 70vh;
+$image-width: 100vw;
+
+@mixin text-stroke($value) {
+	-webkit-text-stroke: $value;
+	text-stroke: $value;
+}
+
+html, head, body {
+	font-family: $font;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+}
+
+main {
+	section {
+		div {
+			text-align: center;
+			width: 100%;
+		}
+
+		.main {
+			height: 100vh;
+
+			header {
+				div {
+					h1 {
+							color: map-get($color, text);
+							font-size: $header-font-size;
+							margin-bottom: 20px;
+							margin-top: 10px;
+							text-align: center;
+							@include text-stroke(0.2vmax map-get($color, stroke));
+					}
+				}
+			}
+
+			#picture {
+				height: auto;
+				width: 100%;
+
+				.image {
+					height: $image-height;
+					margin: 3px auto;
+					max-height: $image-height;
+					max-width: $image-width;
+				}
+			}
+		}
+	}
+}
+
+/* – */

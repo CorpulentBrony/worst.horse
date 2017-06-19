@@ -19,9 +19,6 @@
 		"target": "es6"
 	},
 	"compileOnSave": true,
-	"exclude": [
-		"typings/Promise.d.ts"
-	],
 	"files": [
 		"ts/index.ts"
 	]
