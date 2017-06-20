@@ -1,6 +1,7 @@
 /// <reference path="./Promisify.d.ts" />
 import * as Buffer from "buffer";
 import * as Crypto from "crypto";
+import { Map } from "../CustomTypes/Map";
 import * as Util from "util";
 
 // upperLimit is NON-INCLUSIVE
@@ -27,4 +28,29 @@ export async function shuffle<Value>(array: Array<Value>): Promise<Array<Value>>
 		result[j] = value;
 		return result;
 	}, Promise.resolve(new Array<Value>(array.length)));
+}
+
+type WeightedMap<T> = {
+	length?: number;
+	size?: number; 
+
+	reduce<U extends number>(callback: (sum: U, weight: number) => U, begin: number): U;
+	forEach(callback: (weight: number, item: T) => void): void;
+} & ({ length: number } | { size: number });
+
+export async function weighted<T>(map: WeightedMap<T>, sum?: number): Promise<T> {
+	if (sum === undefined)
+		sum = map.reduce<number>((sum: number, weight: number): number => sum + weight, 0);
+	const length: number = (map.size !== undefined) ? map.size : (map.length !== undefined) ? map.length : 0;
+	let random: number = await integer(sum);
+	let result: T | undefined;
+	map.forEach((weight: number, item: T): void => {
+		if (result === undefined && random <= weight)
+			result = item;
+		random -= weight;
+	});
+
+	if (result === undefined)
+		throw new Error("Could not pick a random value based on the given weighted information.");
+	return result;
 }

@@ -1,10 +1,15 @@
 import { Image } from "./Derpibooru/Image";
+import { Map } from "../CustomTypes/Map";
 import * as Process from "process";
 import * as Random from "./Random";
 import * as Request from "./Request";
+import { Set } from "../CustomTypes/Set";
 import * as Url from "url";
 
-const SEARCH_URL: Url.URL = new Url.URL(Process.env.npm_package_config_derpibooruSearchUrl, Process.env.npm_package_config_derpibooruCanonical);
+const SEARCH_TERM_CONSTANTS = new Set<string>(JSON.parse(Process.env.npm_package_config_derpibooruSearchTermConstants));
+const SEARCH_TERMS: string = "applejack," + SEARCH_TERM_CONSTANTS.join(",");
+const SEARCH_URL = new Url.URL(Process.env.npm_package_config_derpibooruSearchUrl, Process.env.npm_package_config_derpibooruCanonical);
+const WORST_HORSE_WEIGHTS = new Map<string, number>(JSON.parse(Process.env.npm_package_config_worstHorseWeights));
 
 type Query = Url.URLSearchParams | string | { [key: string]: string | Array<string> } | Iterable<[string, string]>;
 
@@ -12,7 +17,12 @@ export class Derpibooru {
 	public query: Url.URLSearchParams;
 	public results: Derpibooru.SearchResults;
 
-	constructor(query: Query) {
+	public static async newRandom(query?: Query): Promise<Image> {
+		const derpibooru: Derpibooru = new this(query);
+		return derpibooru.random();
+	}
+
+	constructor(query: Query = { filter_id: Process.env.npm_package_config_derpibooruSearchFilter, q: SEARCH_TERMS }) {
 		this.query = new Url.URLSearchParams(query);
 	}
 

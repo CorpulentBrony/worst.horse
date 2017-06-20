@@ -13,7 +13,7 @@ find ./js/ -maxdepth 9 ! -name ".*" ! -name "js" ! -name "README.md" -delete
 ./bin/tsc -p ./tsconfig.web.json
 
 # browserify web app
-./bin/browserify ./js/index.js -o ./js/main.js
+./bin/browserify ./js/index.js --debug | ./bin/exorcist ./js/main.js.map > ./js/main.js
 
 # clean out css/ directory
 find ./css/ -maxdepth 9 ! -name ".*" ! -name "css" ! -name "README.md" -delete

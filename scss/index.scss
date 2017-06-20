@@ -1,10 +1,13 @@
 $colors: (
 	applejack: (stroke: #f37737, text: #faba5d)
 );
-$caption-font-size: x-small;
+$caption-font-size: 3vmin;
 $color: map-get($colors, applejack);
 $font: "Open Sans", sans-serif;
-$header-font-size: 6vmax;
+$header-font-sizes: (
+
+);
+$header-font-size: 15vmin;
 $image-height: 70vh;
 $image-width: 100vw;
 
@@ -35,10 +38,11 @@ main {
 					h1 {
 							color: map-get($color, text);
 							font-size: $header-font-size;
-							margin-bottom: 20px;
-							margin-top: 10px;
+							font-weight: bolder;
+							margin-bottom: 1vmin;
+							margin-top: 1vmin;
 							text-align: center;
-							@include text-stroke(0.2vmax map-get($color, stroke));
+							@include text-stroke(0.02vmin map-get($color, stroke));
 					}
 				}
 			}
@@ -55,7 +59,7 @@ main {
 
 				.image {
 					height: $image-height;
-					margin: 3px auto;
+					// margin: 3px auto;
 					max-height: $image-height;
 					max-width: $image-width;
 				}
