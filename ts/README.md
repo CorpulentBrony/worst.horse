@@ -1,2 +1,2 @@
 # ts
-The [TypeScript](https://www.typescriptlang.org/) source files for this project.  They can be built by running `npm install` in the project's top directory.  [`browser/`](browser/) contains the code used for the frontend HTML pages and [`server/`](server/) contains the code used for the backend image and image information server.
+The [TypeScript](https://www.typescriptlang.org/) source files for this project.  They can be built by running `npm install` in the project's top directory.  [`server/`](server/) contains the code used for the backend image and image information server.

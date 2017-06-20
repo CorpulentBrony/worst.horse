@@ -1,0 +1,4 @@
+#!/bin/sh
+cd "${0%/*}/.."
+git commit -a
+git push origin master

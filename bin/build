@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# change working directory
+cd "${0%/*}/.."
+
+# update submodules
+git submodule update --remote --recursive
+
+# clean out js/ directory
+find ./js/ -maxdepth 9 ! -name ".*" ! -name "js" ! -name "README.md" -delete
+
+# transpile web app
+./bin/tsc -p ./tsconfig.web.json
+
+# browserify web app
+./bin/browserify ./js/index.js -o ./js/main.js
+
+# clean out css/ directory
+find ./css/ -maxdepth 9 ! -name ".*" ! -name "css" ! -name "README.md" -delete
+
+# transpile scss
+find ./scss/ -maxdepth 1 -name "*.scss" -type f -exec sh -c 'scss --style expanded --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
+
+# transpile server app
+./bin/tsc
+
+# make server app executable
+chmod +x ./js/server/image.js
