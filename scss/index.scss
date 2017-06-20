@@ -1,6 +1,7 @@
 $colors: (
 	applejack: (stroke: #f37737, text: #faba5d)
 );
+$caption-font-size: x-small;
 $color: map-get($colors, applejack);
 $font: "Open Sans", sans-serif;
 $header-font-size: 6vmax;
@@ -45,6 +46,12 @@ main {
 			#picture {
 				height: auto;
 				width: 100%;
+
+				figure {
+					figcaption {
+						font-size: $caption-font-size;
+					}
+				}
 
 				.image {
 					height: $image-height;

@@ -114,13 +114,11 @@ export class Display implements Display.Like {
 }
 
 export namespace Display {
-	interface Aggregates {
-		artists: string;
-		sources: Source;
-	}
-
-	export type AggregatesArray = { [P in keyof Aggregates]: Array<Aggregates[P]> };
-	type AggregatesSet = { [P in keyof Aggregates]: Set<Aggregates[P]> };
+	export type ObjectAggregateArray<T extends Src> = { [P in keyof ObjectAggregates<T>]: Array<ObjectAggregates<T>[P]> };
+	type ObjectAggregateSet<T extends Src> = { [P in keyof ObjectAggregates<T>]: Set<ObjectAggregates<T>[P]> };
+	export type ScaleDefinition = Partial<Image.Dimensions> & ({ height: number, scale: "height" } | { height: number, scale: "longest", width: number } | { scale: "width", width: number });
+	export type Source<T extends Src = Url.URL> = SourceGeneric<T> & ({ isDefault: true } | { isDefault: false, media: string } | { isDefault: false, type: "image/svg+xml" });
+	type Src = string | Url.URL;
 
 	export interface Like extends Readonly<Object> {
 		readonly object: Image;
@@ -129,14 +127,23 @@ export namespace Display {
 		toString(): string;
 	}
 
-	export interface Object extends AggregatesSet, ObjectNonAggregate {}
+	export interface Object extends ObjectAggregateSet<Url.URL>, ObjectParticulars<Url.URL> {}
 
-	export interface ObjectNonAggregate {
-		mimeType: string;
-		pageUrl: Url.URL;
-		sourceUrl?: Url.URL;
+	interface ObjectAggregates<T extends Src> {
+		artists: string;
+		sources: SourceGeneric<T>;
 	}
 
-	export type ScaleDefinition = Partial<Image.Dimensions> & ({ height: number, scale: "height" } | { height: number, scale: "longest", width: number } | { scale: "width", width: number });
-	export type Source = { src: Url.URL } & ({ isDefault: true } | { isDefault: false, media: string } | { isDefault: false, type: "image/svg+xml" });
+	export interface ObjectParticulars<T extends Src> {
+		mimeType: string;
+		pageUrl: T;
+		sourceUrl?: T;
+	}
+
+	interface SourceGeneric<T extends Src> {
+		isDefault: boolean;
+		media?: string;
+		src: T;
+		type?: "image/svg+xml";
+	}
 }

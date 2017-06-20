@@ -1,4 +1,5 @@
 import { Derpibooru } from "./server/Derpibooru";
+import { ImageDisplay } from "./ImageDisplay";
 import * as WebFontLoader from "webfontloader";
 // import "whatwg-fetch";
 
@@ -7,8 +8,8 @@ async function updatePicture(): Promise<void> {
 
 	if (!response.ok)
 		throw new Error("Network error while attempting to update image");
-	const object: Derpibooru.Image.Display.Source = await response.json();
-	console.log(object);
+	const imageDisplay: ImageDisplay = ImageDisplay.update(await response.json(), "picture");
+	console.log("image updated");
 }
 
 WebFontLoader.load({ google: { families: ["Open Sans"] } });
