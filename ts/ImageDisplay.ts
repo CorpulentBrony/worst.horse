@@ -12,7 +12,14 @@ export class ImageDisplay {
 	constructor(object: ImageDisplay.Object) { this.object = object; }
 
 	public updatePicture(elementId: string): this {
+		Util.addResourceHint({ rel: "preconnect", href: "https://worst.horse" });
+		const header: HTMLElement | null = document.getElementById("header");
+
+		if (header !== null)
+			header.className = this.object.horse.replace(/ /, "-");
 		const element: Element | null = document.getElementById(elementId);
+		const currentWidth: number = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || document.getElementsByTagName<"body">("body")[0].clientWidth;
+		let preload: HTMLLinkElement | undefined;
 
 		if (element === null)
 			throw new TypeError("Supplied element ID does not exist in the DOM.");
@@ -22,10 +29,16 @@ export class ImageDisplay {
 		const horseNameFormatted: string = this.object.horse.replace(/^[a-z]| [a-z]/g, (firstLetter: string): string => firstLetter.toUpperCase());
 
 		for (const source of this.object.sources)
-			if (source.isDefault)
+			if (source.isDefault) {
+				if (preload === undefined)
+					preload = Util.addResourceHint({ as: "image", href: source.src, rel: "preload" });
 				Util.createElement<HTMLImageElement>("img", { alt: horseNameFormatted + " is worst horse", class: "image", src: source.src, type: this.object.mimeType }, picture);
-			else
+			}
+			else {
+				if (preload === undefined && (source.width === undefined || currentWidth < source.width))
+					preload = Util.addResourceHint({ as: "image", href: source.src, rel: "preload" });
 				Util.createElement<HTMLSourceElement>("source", { media: source.media ? source.media : "(min-width: 0px)", srcset: source.src, type: (source.type !== undefined) ? source.type : this.object.mimeType }, picture);
+			}
 		const figcaption: HTMLElement = Util.createElement("figcaption", {}, figure);
 		Util.createElement<HTMLAnchorElement>("a", { href: this.object.pageUrl }, figcaption, "Image");
 		let conjunction: Text = document.createTextNode("");
@@ -46,10 +59,6 @@ export class ImageDisplay {
 		Util.createElement<HTMLAnchorElement>("a", { href: "https://derpibooru.org" }, figcaption, "Derpibooru");
 		figcaption.appendChild(document.createTextNode("."));
 		element.appendChild(fragment);
-		const header: HTMLElement | null = document.getElementById("header");
-
-		if (header !== null)
-			header.className = this.object.horse.replace(/ /, "-");
 		return this;
 	}
 }

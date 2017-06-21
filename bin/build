@@ -13,13 +13,21 @@ find ./js/ -maxdepth 9 ! -name ".*" ! -name "js" ! -name "README.md" -delete
 ./bin/tsc -p ./tsconfig.web.json
 
 # browserify web app
-./bin/browserify ./js/index.js --debug | ./bin/exorcist ./js/main.js.map > ./js/main.js
+./bin/browserify ./js/index.js --debug -o ./js/main.js # | ./bin/exorcist ./js/main.js.map > ./js/main.js
+
+# disabling exorcist for now
+#./bin/browserify ./js/index.js --debug | ./bin/exorcist ./js/main.js.map > ./js/main.js
+
+# uglify js
+./bin/uglifyjs ./js/main.js --compress dead_code,conditionals,comparisons,evaluate,booleans,loops,unused,if_return,reduce_vars,passes=3,keep_fargs=false --mangle --source-map root="https://worst.horse/js",url=main.min.js.map,content=inline --output ./js/main.min.js
 
 # clean out css/ directory
 find ./css/ -maxdepth 9 ! -name ".*" ! -name "css" ! -name "README.md" -delete
 
 # transpile scss
 find ./scss/ -maxdepth 1 -name "*.scss" -type f -exec sh -c 'scss --style expanded --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
+
+# see https://github.com/css/csso and https://github.com/css/csso-cli for option to do css minification
 
 # transpile server app
 ./bin/tsc

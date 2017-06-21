@@ -25,7 +25,7 @@
     "lib": "ts/"
   },
   "scripts": {
-    "install": "bin/build",
+    "prepare": "bin/build",
     "start": "node js/server/image.js &",
     "stop": "kill -9 $(ps aux | grep '[i]mage.js' | awk '{print $2}')"
   },
@@ -53,17 +53,21 @@
     "node": ">=8.0.0"
   },
   "private": true,
+  "devDependencies": {
+    "browserify": ">=14.4.0",
+    "exorcist": ">=0.4.0",
+    "typescript": "next",
+    "uglify-es": ">=3.0.18",
+    "uglifyify": ">=4.0.1"
+  },
   "dependencies": {
     "@types/gm": ">=1.17.31",
     "@types/node": ">=7.0.27",
     "@types/webfontloader": ">=1.6.28",
-    "browserify": ">=14.4.0",
-    "exorcist": ">=0.4.0",
     "gm": ">=1.23.0",
     "highwayhash": ">=2.1.1",
     "redis": ">=2.7.1",
     "reset-css": ">=2.2.0",
-    "typescript": "next",
     "webfontloader": ">=1.6.28",
     "whatwg-fetch": ">=2.0.3"
   }

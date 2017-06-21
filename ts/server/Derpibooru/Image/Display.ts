@@ -46,24 +46,24 @@ export class Display implements Display.Like {
 	public get sources(): Set<Display.Source> {
 		if (this._sources)
 			return this._sources;
-		const representations = new Map<keyof Image.Representations, Image.Dimensions & { url: Url.URL }>();
+		const representations = new Map<keyof Image.Representations, Image.Dimensions & { url: string }>();
 
 		for (const [size, dimension] of Display.scaleDefinitions) {
 			const scaledDimension: Image.Dimensions = this.scaleDimensions(dimension);
-			representations.set(size, { height: scaledDimension.height, url: new Url.URL("https:" + this.object.representations[size]), width: scaledDimension.width });
+			representations.set(size, { height: scaledDimension.height, url: Path.resolve(this.object.representations[size]), width: scaledDimension.width });
 		}
 		const sources = new Set<Display.Source>();
 		let i: number = 1;
 
 		// for SVG images, derpibooru will serve image/png; this hack provides an image/svg+xml source for the browser in addition to the image/png
 		if (this.object.mime_type === "image/svg+xml")
-			sources.add({ isDefault: false, src: new Url.URL("https:" + Path.resolve(this.object.image, "..", this.object.id + ".svg")), type: "image/svg+xml" });
+			sources.add({ isDefault: false, src: Path.resolve(this.object.image, "..", this.object.id + ".svg"), type: "image/svg+xml" });
 		return this._sources = representations
-			.filter((source: Image.Dimensions & { url: Url.URL }): boolean => this.object.width >= source.width)
-			.dedupe((a: Image.Dimensions & { url: Url.URL }, b: Image.Dimensions & { url: Url.URL }): boolean => a.width === b.width, (a: Image.Dimensions & { url: Url.URL }, b: Image.Dimensions & { url: Url.URL }): number => a.width - b.width)
-			.reduce<Set<Display.Source>>((sources: Set<Display.Source>, source: Image.Dimensions & { url: Url.URL }, size: keyof Image.Representations, representations: Map<keyof Image.Representations, Image.Dimensions & { url: Url.URL }>): Set<Display.Source> => {
+			.filter((source: Image.Dimensions & { url: string }): boolean => this.object.width >= source.width)
+			.dedupe((a: Image.Dimensions & { url: string }, b: Image.Dimensions & { url: string }): boolean => a.width === b.width, (a: Image.Dimensions & { url: string }, b: Image.Dimensions & { url: string }): number => a.width - b.width)
+			.reduce<Set<Display.Source>>((sources: Set<Display.Source>, source: Image.Dimensions & { url: string }, size: keyof Image.Representations, representations: Map<keyof Image.Representations, Image.Dimensions & { url: string }>): Set<Display.Source> => {
 				if (i++ < representations.size)
-					sources.add({ isDefault: false, media: "(max-width: " + source.width.toString() + "px)", src: source.url });
+					sources.add({ isDefault: false, media: "(max-width: " + source.width.toString() + "px)", src: source.url, width: source.width });
 				else
 					sources.add({ isDefault: true, src: source.url });
 				return sources;
@@ -76,8 +76,9 @@ export class Display implements Display.Like {
 		this.isSourceUrlSet = true;
 
 		if (typeof this.object.source_url === "string" && this.object.source_url.length >= 10)
-			return this._sourceUrl = new Url.URL(this.object.source_url);
-		return undefined;
+			try { this._sourceUrl = new Url.URL(this.object.source_url); }
+			catch (err) {}
+		return this._sourceUrl;
 	}
 
 	private getSubtags(targetTag: string): Set<string> {
@@ -120,7 +121,7 @@ export namespace Display {
 	export type ObjectAggregateArray<T extends Src> = { [P in keyof ObjectAggregates<T>]: Array<ObjectAggregates<T>[P]> };
 	type ObjectAggregateSet<T extends Src> = { [P in keyof ObjectAggregates<T>]: Set<ObjectAggregates<T>[P]> };
 	export type ScaleDefinition = Partial<Image.Dimensions> & ({ height: number, scale: "height" } | { height: number, scale: "longest", width: number } | { scale: "width", width: number });
-	export type Source<T extends Src = Url.URL> = SourceGeneric<T> & ({ isDefault: true } | { isDefault: false, media: string } | { isDefault: false, type: "image/svg+xml" });
+	export type Source<T extends Src = string> = SourceGeneric<T> & ({ isDefault: true } | { isDefault: false, media: string, width: number } | { isDefault: false, type: "image/svg+xml" });
 	type Src = string | Url.URL;
 
 	export interface Like extends Readonly<Object> {
@@ -130,7 +131,7 @@ export namespace Display {
 		toString(): string;
 	}
 
-	export interface Object extends ObjectAggregateSet<Url.URL>, ObjectParticulars<Url.URL> {}
+	export interface Object extends ObjectAggregateSet<string>, ObjectParticulars<Url.URL> {}
 
 	interface ObjectAggregates<T extends Src> {
 		artists: string;
@@ -149,5 +150,6 @@ export namespace Display {
 		media?: string;
 		src: T;
 		type?: "image/svg+xml";
+		width?: number;
 	}
 }

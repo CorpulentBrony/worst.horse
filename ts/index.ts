@@ -17,7 +17,6 @@ async function updatePicture(): Promise<void> {
 		throw new Error("Network error while attempting to update image");
 	const imageDisplay: ImageDisplay = ImageDisplay.update(await response.json(), "picture");
 	console.log("image updated", imageDisplay.object);
-	console.log("worst pony is", imageDisplay.object.horse);
 }
 
 WebFontLoader.load({ google: { families: ["Open Sans"] } });
@@ -26,7 +25,7 @@ if (window.fetch)
 	updatePicture().catch(console.error);
 else {
 	const fragment: DocumentFragment = document.createDocumentFragment();
-	const script: HTMLScriptElement = Util.createElement<HTMLScriptElement>("script", { async: "true", src: "node_modules/whatwg-fetch/fetch.js", type: "application/javascript" }, fragment);
+	const script: HTMLScriptElement = Util.createElement<HTMLScriptElement>("script", { async: "", src: "node_modules/whatwg-fetch/fetch.js", type: "application/javascript" }, fragment);
 	script.addEventListener("load", (): Promise<void> => updatePicture().catch(console.error), Util.doAddEventListenerOptionsSupport().once ? { once: true } : false);
 	document.body.appendChild(fragment);
 }

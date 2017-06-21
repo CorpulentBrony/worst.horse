@@ -1,4 +1,8 @@
 export type AddEventListenerOptions = { capture: boolean, once: boolean, passive: boolean };
+export type ElementAttributes = { [property: string]: string };
+export type ResourceHintAttributes = ElementAttributes & { as?: "document" | "embed" | "font" | "image" | "media" | "object" | "script" | "style" | "worker", href: string, rel: "dns-prefetch" | "preconnect" | "prefetch" | "preload" | "prerender" };
+
+export function addResourceHint(resourceHintAttributes: ResourceHintAttributes): HTMLLinkElement { return createElement<HTMLLinkElement>("link", resourceHintAttributes, document.head); }
 
 export function doAddEventListenerOptionsSupport(): AddEventListenerOptions {
 	const result: AddEventListenerOptions = { capture: false, once: false, passive: false };
