@@ -1,8 +1,9 @@
 $colors: (
-	applejack: (stroke: #f37737, text: #faba5d)
+	applejack: (stroke: #fb8240, text: #ffc06d),
+	starlight-glimmer: (stroke: #bd88d3, text: #edbcf3),
+	sunset-shimmer: (stroke: #d9a006, text: #f8d77b)
 );
 $caption-font-size: 3vmin;
-$color: map-get($colors, applejack);
 $font: "Open Sans", sans-serif;
 $header-font-sizes: (
 
@@ -36,13 +37,18 @@ main {
 			header {
 				div {
 					h1 {
-							color: map-get($color, text);
 							font-size: $header-font-size;
 							font-weight: bolder;
 							margin-bottom: 1vmin;
 							margin-top: 1vmin;
 							text-align: center;
+					}
+
+					@each $horse, $color in $colors {
+						.#{$horse} {
+							color: map-get($color, text);
 							@include text-stroke(0.02vmin map-get($color, stroke));
+						}
 					}
 				}
 			}
@@ -59,7 +65,6 @@ main {
 
 				.image {
 					height: $image-height;
-					// margin: 3px auto;
 					max-height: $image-height;
 					max-width: $image-width;
 				}

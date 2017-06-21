@@ -3,13 +3,11 @@ import { Map } from "../CustomTypes/Map";
 import * as Process from "process";
 import * as Random from "./Random";
 import * as Request from "./Request";
-import { Set } from "../CustomTypes/Set";
 import * as Url from "url";
 
-const SEARCH_TERM_CONSTANTS = new Set<string>(JSON.parse(Process.env.npm_package_config_derpibooruSearchTermConstants));
-const SEARCH_TERMS: string = "applejack," + SEARCH_TERM_CONSTANTS.join(",");
+const SEARCH_TERM_CONSTANTS = new Array<string>(JSON.parse(Process.env.npm_package_config_derpibooruSearchTermConstants));
 const SEARCH_URL = new Url.URL(Process.env.npm_package_config_derpibooruSearchUrl, Process.env.npm_package_config_derpibooruCanonical);
-const WORST_HORSE_WEIGHTS = new Map<string, number>(JSON.parse(Process.env.npm_package_config_worstHorseWeights));
+const WORST_HORSE_WEIGHTS = new Map<Derpibooru.Horse, number>(JSON.parse(Process.env.npm_package_config_worstHorseWeights));
 
 type Query = Url.URLSearchParams | string | { [key: string]: string | Array<string> } | Iterable<[string, string]>;
 
@@ -22,15 +20,20 @@ export class Derpibooru {
 		return derpibooru.random();
 	}
 
-	constructor(query: Query = { filter_id: Process.env.npm_package_config_derpibooruSearchFilter, q: SEARCH_TERMS }) {
+	constructor(query: Query = { filter_id: Process.env.npm_package_config_derpibooruSearchFilter }) {
 		this.query = new Url.URLSearchParams(query);
 	}
 
-	public async random(query: Query = this.query): Promise<Image> {
-		let array: Array<Image> = await this.search(query);
+	public async random(horse?: Derpibooru.Horse): Promise<Image> {
+		if (horse === undefined)
+			horse = await Random.weighted<Derpibooru.Horse>(WORST_HORSE_WEIGHTS);
+		this.query.set("q", horse + "," + SEARCH_TERM_CONSTANTS.join(","));
+		let array: Array<Image & { horse?: Derpibooru.Horse }> = await this.search(this.query);
 		const imageNumber: number = await Random.integer(array.length);
-		array = await Random.shuffle<Image>(array);
-		return array[imageNumber];
+		array = await Random.shuffle<Image & { horse?: Derpibooru.Horse }>(array);
+		const selection: Image & { horse?: Derpibooru.Horse } = array[imageNumber];
+		selection.horse = horse;
+		return selection;
 	}
 
 	public async search(query: Query = this.query): Promise<Array<Image>> {
@@ -54,6 +57,8 @@ export class Derpibooru {
 }
 
 export namespace Derpibooru {
+	export type Horse = "applejack" | "starlight glimmer" | "sunset shimmer";
+
 	export interface SearchResults {
 		search: Array<Image>;
 		total: number;

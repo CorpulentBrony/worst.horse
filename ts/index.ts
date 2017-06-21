@@ -17,6 +17,7 @@ async function updatePicture(): Promise<void> {
 		throw new Error("Network error while attempting to update image");
 	const imageDisplay: ImageDisplay = ImageDisplay.update(await response.json(), "picture");
 	console.log("image updated", imageDisplay.object);
+	console.log("worst pony is", imageDisplay.object.horse);
 }
 
 WebFontLoader.load({ google: { families: ["Open Sans"] } });

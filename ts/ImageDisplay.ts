@@ -19,10 +19,11 @@ export class ImageDisplay {
 		const fragment: DocumentFragment = document.createDocumentFragment();
 		const figure: HTMLElement = Util.createElement("figure", {}, fragment);
 		const picture: HTMLPictureElement = Util.createElement<HTMLPictureElement>("picture", {}, figure);
+		const horseNameFormatted: string = this.object.horse.replace(/^[a-z]| [a-z]/g, (firstLetter: string): string => firstLetter.toUpperCase());
 
 		for (const source of this.object.sources)
 			if (source.isDefault)
-				Util.createElement<HTMLImageElement>("img", { alt: "Applejack is worst horse", class: "image", src: source.src, type: this.object.mimeType }, picture);
+				Util.createElement<HTMLImageElement>("img", { alt: horseNameFormatted + " is worst horse", class: "image", src: source.src, type: this.object.mimeType }, picture);
 			else
 				Util.createElement<HTMLSourceElement>("source", { media: source.media ? source.media : "(min-width: 0px)", srcset: source.src, type: (source.type !== undefined) ? source.type : this.object.mimeType }, picture);
 		const figcaption: HTMLElement = Util.createElement("figcaption", {}, figure);
@@ -45,6 +46,10 @@ export class ImageDisplay {
 		Util.createElement<HTMLAnchorElement>("a", { href: "https://derpibooru.org" }, figcaption, "Derpibooru");
 		figcaption.appendChild(document.createTextNode("."));
 		element.appendChild(fragment);
+		const header: HTMLElement | null = document.getElementById("header");
+
+		if (header !== null)
+			header.className = this.object.horse.replace(/ /, "-");
 		return this;
 	}
 }

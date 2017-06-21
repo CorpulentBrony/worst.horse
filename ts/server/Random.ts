@@ -4,6 +4,14 @@ import * as Crypto from "crypto";
 import { Map } from "../CustomTypes/Map";
 import * as Util from "util";
 
+type WeightedMap<T> = {
+	length?: number;
+	size?: number; 
+
+	reduce<U extends number>(callback: (sum: U, weight: number) => U, begin: number): U;
+	forEach(callback: (weight: number, item: T) => void): void;
+} & ({ length: number } | { size: number });
+
 // upperLimit is NON-INCLUSIVE
 export async function integer(upperLimit: number): Promise<number> {
 	if (upperLimit <= 1)
@@ -29,14 +37,6 @@ export async function shuffle<Value>(array: Array<Value>): Promise<Array<Value>>
 		return result;
 	}, Promise.resolve(new Array<Value>(array.length)));
 }
-
-type WeightedMap<T> = {
-	length?: number;
-	size?: number; 
-
-	reduce<U extends number>(callback: (sum: U, weight: number) => U, begin: number): U;
-	forEach(callback: (weight: number, item: T) => void): void;
-} & ({ length: number } | { size: number });
 
 export async function weighted<T>(map: WeightedMap<T>, sum?: number): Promise<T> {
 	if (sum === undefined)

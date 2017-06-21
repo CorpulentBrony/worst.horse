@@ -1,8 +1,11 @@
+import { Derpibooru } from "../Derpibooru";
+
 export interface Image extends Image.Dimensions {
 	aspect_ratio: number;
 	downvotes: number;
 	faves: number;
 	file_name: string;
+	horse: Derpibooru.Horse;
 	id: string;
 	image: string;
 	mime_type: string;

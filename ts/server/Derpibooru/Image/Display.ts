@@ -1,3 +1,4 @@
+import { Derpibooru } from "../../Derpibooru";
 import { Image } from "../Image";
 import { Map } from "../../../CustomTypes/Map";
 import * as Path from "path";
@@ -18,6 +19,7 @@ export class Display implements Display.Like {
 
 	private _artists: Set<string>;
 	private _aspectRatio: number;
+	private _horse: Derpibooru.Horse;
 	private _mimeType: string;
 	private _pageUrl: Url.URL;
 	private _sources: Set<Display.Source>;
@@ -37,6 +39,7 @@ export class Display implements Display.Like {
 
 	public get artists(): Set<string> { return (this._artists) ? this._artists : this._artists = this.getSubtags("artist"); }
 	private get aspectRatio(): number { return (this._aspectRatio !== undefined) ? this._aspectRatio : this._aspectRatio = this.object.width / this.object.height; }
+	public get horse(): Derpibooru.Horse { return (this._horse) ? this._horse : this._horse = this.object.horse; }
 	public get mimeType(): string { return (this._mimeType !== undefined) ? this._mimeType : this._mimeType = this.object.mime_type; }
 	public get pageUrl(): Url.URL { return (this._pageUrl) ? this._pageUrl : this._pageUrl = new Url.URL(this.object.id, Process.env.npm_package_config_derpibooruCanonical); }
 
@@ -109,7 +112,7 @@ export class Display implements Display.Like {
 		}
 	}
 
-	public toJSON(): Display.Object { return { artists: this.artists, mimeType: (this.mimeType === "image/svg+xml") ? "image/png" : this.mimeType, pageUrl: this.pageUrl, sources: this.sources, sourceUrl: this.sourceUrl }; }
+	public toJSON(): Display.Object { return { artists: this.artists, horse: this.horse, mimeType: (this.mimeType === "image/svg+xml") ? "image/png" : this.mimeType, pageUrl: this.pageUrl, sources: this.sources, sourceUrl: this.sourceUrl }; }
 	public toString(): string { return JSON.stringify(this); }
 }
 
@@ -135,6 +138,7 @@ export namespace Display {
 	}
 
 	export interface ObjectParticulars<T extends Src> {
+		horse: Derpibooru.Horse;
 		mimeType: string;
 		pageUrl: T;
 		sourceUrl?: T;
