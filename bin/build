@@ -3,34 +3,35 @@
 # change working directory
 cd "${0%/*}/.."
 
-# update submodules
+echo updating submodules...
 git submodule update --remote --recursive
 
-# clean out js/ directory
+echo cleaning out js/ directory...
 find ./js/ -maxdepth 9 ! -name ".*" ! -name "js" ! -name "README.md" -delete
 
-# transpile web app
+echo transpiling web app...
 ./bin/tsc -p ./tsconfig.web.json
 
-# browserify web app
+echo browserifying web app...
 ./bin/browserify ./js/index.js --debug -o ./js/main.js # | ./bin/exorcist ./js/main.js.map > ./js/main.js
 
 # disabling exorcist for now
 #./bin/browserify ./js/index.js --debug | ./bin/exorcist ./js/main.js.map > ./js/main.js
 
-# uglify js
+echo uglifying js...
 ./bin/uglifyjs ./js/main.js --compress dead_code,conditionals,comparisons,evaluate,booleans,loops,unused,if_return,reduce_vars,passes=3,keep_fargs=false --mangle --source-map root="https://worst.horse/js",url=main.min.js.map,content=inline --output ./js/main.min.js
 
-# clean out css/ directory
+echo cleaning out css/ directory...
 find ./css/ -maxdepth 9 ! -name ".*" ! -name "css" ! -name "README.md" -delete
 
-# transpile scss
+echo transpiling scss to css...
 find ./scss/ -maxdepth 1 -name "*.scss" -type f -exec sh -c 'scss --style expanded --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
 
-# see https://github.com/css/csso and https://github.com/css/csso-cli for option to do css minification
+echo autoprefixing and minifying css...
+./bin/postcss css/index.css --use autoprefixer --use cssnano | ./bin/exorcist --root / --url /css/index.min.css.map ./css/index.min.css.map > ./css/index.min.css
 
-# transpile server app
+echo transpiling server app...
 ./bin/tsc
 
-# make server app executable
+echo making server app executable...
 chmod +x ./js/server/image.js

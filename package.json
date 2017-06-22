@@ -54,8 +54,11 @@
   },
   "private": true,
   "devDependencies": {
+    "autoprefixer": ">=7.1.1",
     "browserify": ">=14.4.0",
+    "cssnano": ">=3.10.0",
     "exorcist": ">=0.4.0",
+    "postcss-cli": ">=4.1.0",
     "typescript": "next",
     "uglify-es": ">=3.0.18",
     "uglifyify": ">=4.0.1"
