@@ -1,7 +1,9 @@
 # [worst.horse](https://worst.horse)
 A website about the [worst horse](https://worst.horse).
 
-Hint: It's Applejack.
+Currently rotates through 3 of the worst horses on the show.  Actually, I'm using weighted randomness to express a scale of worstness for each horse. 
+
+I've wasted so much time on this site...
 
 [![Creative Commons License BY-NC-SA 4.0][Creative Commons License Logo]](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
