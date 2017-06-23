@@ -120,3 +120,6 @@ if checkTarget "js server all"; then
 	echo making server app executable...;
 	chmod +x "${SERVER_APP_JS}";
 fi
+
+echo cleaning up...;
+rm -f gmon.out;
