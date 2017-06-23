@@ -72,7 +72,7 @@ export class Server {
 			if (requestUrl.searchParams.has("json")) {
 				response.setHeader("content-type", "application/json; charset=utf-8");
 				response.setHeader("link", "<https://worst.horse>; rel=dns-prefetch");
-				response.end(Derpibooru.Image.Display.fromImage(searchResult));
+				response.end(await Derpibooru.Image.Display.fromImage(searchResult));
 				return;
 			}
 			const searchResultUrl = new Url.URL("https:" + searchResult.representations.large);

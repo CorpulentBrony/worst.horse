@@ -11,6 +11,7 @@ $header-font-sizes: (
 
 );
 $header-font-size: 15vmin;
+$header-margin: 1vmin;
 $image-height: 70vh;
 $image-width: 100vw;
 
@@ -36,34 +37,43 @@ main {
 		.main {
 			height: 100vh;
 
+			figcaption, footer { font-size: $caption-font-size; }
+
+			figcaption {
+				font-weight: 600;
+				line-height: 1.5;
+			}
+
+			footer {
+				font-weight: 300; 
+
+				#github { font-size: 2.3vmin; }
+			}
+
 			header {
 				div {
 					h1 {
-							font-size: $header-font-size;
-							font-weight: bolder;
-							margin-bottom: 1vmin;
-							margin-top: 1vmin;
-							text-align: center;
+						font-size: $header-font-size;
+						font-weight: 800;
+						margin-bottom: $header-margin;
+						margin-top: $header-margin;
+						text-align: center;
 					}
 
 					@each $horse, $color in $colors {
 						.#{$horse} {
 							color: map-get($color, text);
-							@include text-stroke(0.02vmin map-get($color, stroke));
+							@include text-stroke(0.2vmin map-get($color, stroke));
 						}
 					}
 				}
 			}
 
+			.hidden { display: none; }
+
 			#picture {
 				height: auto;
 				width: 100%;
-
-				figure {
-					figcaption {
-						font-size: $caption-font-size;
-					}
-				}
 
 				.image {
 					height: $image-height;

@@ -1,12 +1,16 @@
+import { Buffer } from "buffer";
 import { Derpibooru } from "../../Derpibooru";
+import * as Gm from "gm";
 import { Image } from "../Image";
 import { Map } from "../../../CustomTypes/Map";
 import * as Path from "path";
 import * as Process from "process";
+import * as Request from "../../Request";
 import { Set } from "../../../CustomTypes/Set";
 import * as Url from "url";
 
 export class Display implements Display.Like {
+	private static cache = new Map<string, Display>();
 	private static scaleDefinitions = new Map<keyof Image.Representations, Display.ScaleDefinition>([
 		["thumb_tiny", { height: 50, scale: "longest", width: 50 }],
 		["thumb_small", { height: 150, scale: "longest", width: 150 }],
@@ -22,20 +26,33 @@ export class Display implements Display.Like {
 	private _horse: Derpibooru.Horse;
 	private _mimeType: string;
 	private _pageUrl: Url.URL;
+	private _placeholder: Promise<string | undefined> | undefined;
 	private _sources: Set<Display.Source>;
 	private _sourceUrl: Url.URL | undefined;
-	private _subtags: Map<string, Set<string>>;
 	public readonly object: Image;
+	private isPlaceholderSet: boolean;
 	private isSourceUrlSet: boolean;
+	private subtags: Map<string, Set<string>>;
 
-	public static fromImage(object: Image): string {
+	public static async fromImage(object: Image): Promise<string> {
 		const display = new this(object);
 		return display.toString();
 	}
 
 	private static round(x: number): number { return x + 0.5 << 1 >> 1; }
 
-	constructor(object: Image) { [this._subtags, this.isSourceUrlSet, this.object] = [new Map<string, Set<string>>(), false, object]; }
+	constructor(object: Image) {
+		this.object = object;
+
+		if (Display.cache.has(object.id)) {
+			const cached: Display = Display.cache.get(object.id)!;
+			[this._artists, this._horse, this._mimeType, this._pageUrl, this._placeholder, this._sources, this._sourceUrl, this.isPlaceholderSet, this.isSourceUrlSet]
+			 = [cached.artists, cached.horse, cached.mimeType, cached.pageUrl, cached.getPlaceholder(), cached.sources, cached.sourceUrl, true, true];
+		} else {
+			[this.subtags, this.isSourceUrlSet] = [new Map<string, Set<string>>(), false];
+			Display.cache.set(object.id, this);
+		}
+	}
 
 	public get artists(): Set<string> { return (this._artists) ? this._artists : this._artists = this.getSubtags("artist"); }
 	private get aspectRatio(): number { return (this._aspectRatio !== undefined) ? this._aspectRatio : this._aspectRatio = this.object.width / this.object.height; }
@@ -48,7 +65,7 @@ export class Display implements Display.Like {
 			return this._sources;
 		const representations = new Map<keyof Image.Representations, Image.Dimensions & { url: string }>();
 
-		for (const [size, dimension] of Display.scaleDefinitions) {
+		for (const [size, dimension] of (<any>Display.scaleDefinitions)) {
 			const scaledDimension: Image.Dimensions = this.scaleDimensions(dimension);
 			representations.set(size, { height: scaledDimension.height, url: Path.resolve(this.object.representations[size]), width: scaledDimension.width });
 		}
@@ -81,17 +98,36 @@ export class Display implements Display.Like {
 		return this._sourceUrl;
 	}
 
+	public async getPlaceholder(): Promise<string | undefined> {
+		if (this.isPlaceholderSet)
+			return this._placeholder;
+		this.isPlaceholderSet = true;
+		const thumbnail: string = this.object.representations["thumb_tiny"];
+
+		if (!thumbnail || thumbnail.length === 0)
+			return undefined;
+		const gm: Gm.State = Gm(await Request.stream(new Url.URL(Path.resolve(thumbnail), "https://worst.horse"))).filter("Gaussian").resize(3, 3);
+		return this._placeholder = new Promise<string>((resolve: (value: string | PromiseLike<string>) => void, reject: (reason?: any) => void): void => {
+			gm.toBuffer("PNG", (err: Error, buffer: Buffer): void => {
+				if (err)
+					reject(err);
+				else
+					resolve(buffer.toString("base64"));
+			});
+		});
+	}
+
 	private getSubtags(targetTag: string): Set<string> {
 		if (!targetTag.endsWith(":"))
 			targetTag += ":";
 
-		if (this._subtags.has(targetTag))
-			return this._subtags.get(targetTag)!;
+		if (this.subtags.has(targetTag))
+			return this.subtags.get(targetTag)!;
 		const targetTags: Array<string> | null = this.object.tags.match(new RegExp(targetTag + "[^,]+", "ig"));
 
 		if (targetTags === null)
-			return this._subtags.set(targetTag, new Set<string>()).get(targetTag)!;
-		return this._subtags.set(targetTag, Set.from<string>(targetTags.map<string>((tag: string): string => tag.replace(targetTag, "")))).get(targetTag)!;
+			return this.subtags.set(targetTag, new Set<string>()).get(targetTag)!;
+		return this.subtags.set(targetTag, Set.from<string>(targetTags.map<string>((tag: string): string => tag.replace(targetTag, "")))).get(targetTag)!;
 	}
 
 	private scaleDimensions(scaleDefinition: Display.ScaleDefinition): Image.Dimensions {
@@ -113,8 +149,19 @@ export class Display implements Display.Like {
 		}
 	}
 
-	public toJSON(): Display.Object { return { artists: this.artists, horse: this.horse, mimeType: (this.mimeType === "image/svg+xml") ? "image/png" : this.mimeType, pageUrl: this.pageUrl, sources: this.sources, sourceUrl: this.sourceUrl }; }
-	public toString(): string { return JSON.stringify(this); }
+	public async toJSON(): Promise<Display.Object> {
+		return {
+			artists: this.artists,
+			horse: this.horse,
+			mimeType: (this.mimeType === "image/svg+xml") ? "image/png" : this.mimeType,
+			pageUrl: this.pageUrl,
+			placeholder:  await this.getPlaceholder(),
+			sources: this.sources,
+			sourceUrl: this.sourceUrl
+		};
+	}
+
+	public async toString(): Promise<string> { return JSON.stringify(await this.toJSON()); }
 }
 
 export namespace Display {
@@ -127,8 +174,9 @@ export namespace Display {
 	export interface Like extends Readonly<Object> {
 		readonly object: Image;
 
-		toJSON(): Object;
-		toString(): string;
+		getPlaceholder(): Promise<string | undefined>;
+		toJSON(): Promise<Object>;
+		toString(): Promise<string>;
 	}
 
 	export interface Object extends ObjectAggregateSet<string>, ObjectParticulars<Url.URL> {}
@@ -142,6 +190,7 @@ export namespace Display {
 		horse: Derpibooru.Horse;
 		mimeType: string;
 		pageUrl: T;
+		placeholder?: string;
 		sourceUrl?: T;
 	}
 

@@ -1,25 +1,11 @@
 {
+	"extends": "./tsconfig",
 	"compilerOptions": {
-		"outDir": "./js",
-		"allowJs": true,
-		"allowUnusedLabels": true,
-		"alwaysStrict": true,
-		"charset": "utf-8",
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"lib": ["es6", "dom"],
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"noFallthroughCasesInSwitch": false,
-		"noImplicitReturns": true,
-		"pretty": false,
-		"removeComments": true,
-		"rootDir": "./ts",
-		"stripInternal": true,
-		"strict": true,
-		"target": "es6"
+		"downlevelIteration": true,
+		"lib": ["es2017", "dom"],
+		"sourceMap": true,
+		"target": "es5"
 	},
-	"compileOnSave": true,
 	"files": [
 		"ts/index.ts"
 	]

@@ -1,64 +1,102 @@
 import { Derpibooru } from "./server/Derpibooru";
 import * as Util from "./Util";
 
+const ANCHOR_IMAGE_ID: string = "anchorImage";
+const ANCHOR_SOURCE_ID: string = "anchorSource";
+const CITE_AUTHOR_ID: string = "citeAuthor";
+const IF_AUTHOR_CLASS: string = "ifAuthor";
+const IF_SOURCE_ID: string = "ifSource";
+const PICTURE_ELEMENT_ID: string = "pictureElement";
+const TEMPLATE_ID: string = "pictureTemplate";
+
+type TemplateDocumentFragment = DocumentFragment & { getElementsByClassName(className: string): NodeListOf<Element>; };
+
 export class ImageDisplay {
+	private _anchorImage: HTMLAnchorElement;
+	private _anchorSource: HTMLAnchorElement;
+	private _citeAuthor: HTMLElement;
+	private _element: HTMLElement;
+	private _picture: HTMLPictureElement;
+	private _preload: HTMLLinkElement | undefined;
+	private _template: TemplateDocumentFragment;
+	public readonly elementId: string;
 	public readonly object: ImageDisplay.Object;
 
 	public static update(object: ImageDisplay.Object, elementId: string): ImageDisplay {
-		const imageDisplay: ImageDisplay = new this(object);
-		return imageDisplay.updatePicture(elementId);
+		const imageDisplay: ImageDisplay = new this(object, elementId);
+		return imageDisplay.updatePicture();
 	}
 
-	constructor(object: ImageDisplay.Object) { this.object = object; }
+	constructor(object: ImageDisplay.Object, elementId: string) { [this.elementId, this.object] = [elementId, object]; }
 
-	public updatePicture(elementId: string): this {
+	private get anchorImage(): HTMLAnchorElement { return (this._anchorImage) ? this._anchorImage : this._anchorImage = <HTMLAnchorElement>Util.getElementByIdOrError(ANCHOR_IMAGE_ID, this.template); }
+	private get anchorSource(): HTMLAnchorElement { return (this._anchorSource) ? this._anchorSource : this._anchorSource = <HTMLAnchorElement>Util.getElementByIdOrError(ANCHOR_SOURCE_ID, this.template); }
+	private get citeAuthor(): HTMLElement { return (this._citeAuthor) ? this._citeAuthor : this._citeAuthor = Util.getElementByIdOrError(CITE_AUTHOR_ID, this.template); }
+
+	private get element(): HTMLElement {
+		if (this._element)
+			return this._element;
+		const element: HTMLElement = Util.getElementByIdOrError(this.elementId);
+
+		while (element.firstChild)
+			element.removeChild(element.firstChild);
+		return this._element = element;
+	}
+
+	private get picture(): HTMLPictureElement { return (this._picture) ? this._picture : this._picture = Util.getElementByIdOrError(PICTURE_ELEMENT_ID, this.template); }
+	private get preload(): string | undefined { return (this._preload) ? this._preload.href : undefined; }
+
+	private get template(): TemplateDocumentFragment {
+		if (this._template)
+			return this._template;
+		const template = <DocumentFragment & { getElementsByClassName?(className: string): ArrayLike<Element>; }>(<HTMLTemplateElement>Util.getElementByIdOrError(TEMPLATE_ID)).content.cloneNode(true);
+
+		if (!template.getElementById)
+			template.getElementById = function(elementId: string): HTMLElement | null { return <HTMLElement | null>template.querySelector("#" + elementId); }
+
+		if (!template.getElementsByClassName)
+			template.getElementsByClassName = function(className: string): NodeListOf<Element> { return template.querySelectorAll("." + className); }
+		return this._template = <TemplateDocumentFragment>template;
+	}
+
+	private set preload(href: string | undefined) { if (this.preload === undefined && href !== undefined) this._preload = Util.addResourceHint({ as: "image", href, rel: "preload" }); }
+
+	public updatePicture(): this {
 		Util.addResourceHint({ rel: "preconnect", href: "https://worst.horse" });
-		const header: HTMLElement | null = document.getElementById("header");
-
-		if (header !== null)
-			header.className = this.object.horse.replace(/ /, "-");
-		const element: Element | null = document.getElementById(elementId);
+		Util.doIfElementExistsById<HTMLElement>("header", (header: HTMLElement): void => { header.className = this.object.horse.replace(/ /, "-"); });
+		const placeholder: HTMLImageElement = Util.createElement("img", { alt: "Loading worst horse...", class: "image", src: "data:image/png;base64," + this.object.placeholder, type: "image/png" }, this.element);
 		const currentWidth: number = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || document.getElementsByTagName<"body">("body")[0].clientWidth;
 		let preload: HTMLLinkElement | undefined;
-
-		if (element === null)
-			throw new TypeError("Supplied element ID does not exist in the DOM.");
-		const fragment: DocumentFragment = document.createDocumentFragment();
-		const figure: HTMLElement = Util.createElement("figure", {}, fragment);
-		const picture: HTMLPictureElement = Util.createElement<HTMLPictureElement>("picture", {}, figure);
 		const horseNameFormatted: string = this.object.horse.replace(/^[a-z]| [a-z]/g, (firstLetter: string): string => firstLetter.toUpperCase());
 
 		for (const source of this.object.sources)
 			if (source.isDefault) {
-				if (preload === undefined)
-					preload = Util.addResourceHint({ as: "image", href: source.src, rel: "preload" });
-				Util.createElement<HTMLImageElement>("img", { alt: horseNameFormatted + " is worst horse", class: "image", src: source.src, type: this.object.mimeType }, picture);
+				this.preload = source.src;
+				const img: HTMLImageElement = Util.createElement<HTMLImageElement>("img", { alt: horseNameFormatted + " is worst horse", class: "hidden image", src: source.src, type: this.object.mimeType }, this.picture);
+				img.addEventListener<"error">("error", (): void => { img.src = "/image" });
+				img.addEventListener<"load">("load", (): void => {
+					placeholder.remove();
+					img.classList.remove("hidden");
+					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove("hidden"));
+				});
 			}
 			else {
-				if (preload === undefined && (source.width === undefined || currentWidth < source.width))
-					preload = Util.addResourceHint({ as: "image", href: source.src, rel: "preload" });
-				Util.createElement<HTMLSourceElement>("source", { media: source.media ? source.media : "(min-width: 0px)", srcset: source.src, type: (source.type !== undefined) ? source.type : this.object.mimeType }, picture);
+				if (source.width === undefined || currentWidth < source.width)
+					this.preload = source.src;
+				Util.createElement<HTMLSourceElement>("source", { media: source.media ? source.media : "(min-width: 0px)", srcset: source.src, type: (source.type !== undefined) ? source.type : this.object.mimeType }, this.picture);
 			}
-		const figcaption: HTMLElement = Util.createElement("figcaption", {}, figure);
-		Util.createElement<HTMLAnchorElement>("a", { href: this.object.pageUrl }, figcaption, "Image");
-		let conjunction: Text = document.createTextNode("");
+		this.anchorImage.href = this.object.pageUrl;
 
-		if (Array.isArray(this.object.artists) && this.object.artists.length > 0) {
-			figcaption.appendChild(document.createTextNode(" by "));
-			Util.createElement("cite", {}, figcaption, this.object.artists.join((this.object.artists.length === 2) ? " and " : ", ").replace(/, (?=[^,]+$)/, ", and "));
-			conjunction = document.createTextNode(" and");
-		}
+		if (Array.isArray(this.object.artists) && this.object.artists.length > 0)
+			this.citeAuthor.innerText = this.object.artists.join((this.object.artists.length === 2) ? " and " : ", ").replace(/, (?=[^,]+$)/, ", and ");
+		else
+			Array.prototype.forEach.call(this.template.getElementsByClassName(IF_AUTHOR_CLASS), (element: Element): void => element.classList.add("hidden"));
 
-		if (typeof this.object.sourceUrl === "string" && this.object.sourceUrl.length > 0) {
-			figcaption.appendChild(document.createTextNode(" ("));
-			Util.createElement<HTMLAnchorElement>("a", { href: this.object.sourceUrl }, figcaption, "source");
-			figcaption.appendChild(document.createTextNode(")"));
-		}
-		figcaption.appendChild(conjunction);
-		figcaption.appendChild(document.createTextNode(" hosted on "));
-		Util.createElement<HTMLAnchorElement>("a", { href: "https://derpibooru.org" }, figcaption, "Derpibooru");
-		figcaption.appendChild(document.createTextNode("."));
-		element.appendChild(fragment);
+		if (typeof this.object.sourceUrl === "string" && this.object.sourceUrl.length > 0)
+			this.anchorSource.href = this.object.sourceUrl;
+		else
+			Util.getElementByIdOrError(IF_SOURCE_ID, this.template).classList.add("hidden");
+		this.element.appendChild(this.template);
 		return this;
 	}
 }

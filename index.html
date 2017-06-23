@@ -10,7 +10,7 @@
 		<base href="https://worst.horse">
 		<link rel="publisher" href="//plus.google.com/+CorpulentBrony" hreflang="en" type="text/html">
 		<link rel="bestpony" href="//iwtcits.com" hreflang="en" type="text/html">
-		<script async src="js/main.min.js" type="application/javascript"></script>
+		<script async src="js/index.min.js" type="application/javascript"></script>
 		<title>Worst Horse</title>
 		<link href="css/index.min.css" hreflang="en" rel="stylesheet" type="text/css">
 	</head>
@@ -18,8 +18,8 @@
 		<main>
 			<section>
 				<div class="main">
-					<header><div><h1 class="applejack" id="header">Worst Horse</h1></div></header>
-					<div id="picture">
+					<header role="banner"><div><h1 class="applejack" id="header">Worst Horse</h1></div></header>
+					<div aria-live="polite" aria-relevant="all" id="picture" role="main">
 						<noscript>
 							<figure>
 								<picture>
@@ -29,8 +29,20 @@
 							</figure>
 						</noscript>
 					</div>
+					<footer class="hidden" id="footer" role="contentinfo">
+						Find out who <a href="https://iwtcits.com">best horse</a> is<br>
+						<a id="github" href="https://github.com/CorpulentBrony/worst.horse">Page source available on <span class="fa fa-github" title="Github"></span></a>
+					</footer>
 				</div>
 			</section>
 		</main>
+		<template id="pictureTemplate">
+			<figure>
+				<picture id="pictureElement"></picture>
+				<figcaption>
+					<a id="anchorImage">Image</a><span class="ifAuthor"> by <cite id="citeAuthor">some dude</cite></span><span id="ifSource"> (<a id="anchorSource">source</a>)<span class="ifAuthor"> and</span> hosted by <a href="https://derpibooru.org">Derpibooru</a>.
+				</figcaption>
+			</figure>
+		</template>
 	</body>
 </html> 

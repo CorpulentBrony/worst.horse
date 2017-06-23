@@ -20,6 +20,7 @@
   },
   "description": "worst.horse web site",
   "main": "js/server/image.js",
+  "browser": "js/index.js",
   "directories": {
     "bin": "bin/",
     "lib": "ts/"
@@ -59,19 +60,31 @@
     "cssnano": ">=3.10.0",
     "exorcist": ">=0.4.0",
     "postcss-cli": ">=4.1.0",
+    "sorcery": ">=0.10.0",
     "typescript": "next",
-    "uglify-es": ">=3.0.18",
+    "uglify-js": ">=3.0.19",
     "uglifyify": ">=4.0.1"
   },
   "dependencies": {
     "@types/gm": ">=1.17.31",
     "@types/node": ">=7.0.27",
     "@types/webfontloader": ">=1.6.28",
+    "font-awesome": "git+ssh://git@github.com/FortAwesome/Font-Awesome.git",
     "gm": ">=1.23.0",
     "highwayhash": ">=2.1.1",
     "redis": ">=2.7.1",
     "reset-css": ">=2.2.0",
     "webfontloader": ">=1.6.28",
     "whatwg-fetch": ">=2.0.3"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "uglifyify",
+        {
+          "global": true
+        }
+      ]
+    ]
   }
 }

@@ -1,1 +1,1 @@
-../node_modules/uglify-es/bin/uglifyjs
+../node_modules/uglify-js/bin/uglifyjs
