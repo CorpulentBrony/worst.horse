@@ -26,13 +26,18 @@ export class Display implements Display.Like {
 	private _horse: Derpibooru.Horse;
 	private _mimeType: string;
 	private _pageUrl: Url.URL;
-	private _placeholder: Promise<string | undefined> | undefined;
+	private _placeholder: Promise<Buffer | undefined> | undefined;
 	private _sources: Set<Display.Source>;
 	private _sourceUrl: Url.URL | undefined;
 	public readonly object: Image;
 	private isPlaceholderSet: boolean;
 	private isSourceUrlSet: boolean;
 	private subtags: Map<string, Set<string>>;
+
+	public static async bufferFromImage(object: Image): Promise<Buffer> {
+		const display = new this(object);
+		return display.toBuffer();
+	}
 
 	public static async fromImage(object: Image): Promise<string> {
 		const display = new this(object);
@@ -98,7 +103,7 @@ export class Display implements Display.Like {
 		return this._sourceUrl;
 	}
 
-	public async getPlaceholder(): Promise<string | undefined> {
+	public async getPlaceholder(): Promise<Buffer | undefined> {
 		if (this.isPlaceholderSet)
 			return this._placeholder;
 		this.isPlaceholderSet = true;
@@ -107,12 +112,12 @@ export class Display implements Display.Like {
 		if (!thumbnail || thumbnail.length === 0)
 			return undefined;
 		const gm: Gm.State = Gm(await Request.stream(new Url.URL(Path.resolve(thumbnail), "https://worst.horse"))).filter("Gaussian").resize(3, 3);
-		return this._placeholder = new Promise<string>((resolve: (value: string | PromiseLike<string>) => void, reject: (reason?: any) => void): void => {
+		return this._placeholder = new Promise<Buffer>((resolve: (value: Buffer | PromiseLike<Buffer>) => void, reject: (reason?: any) => void): void => {
 			gm.toBuffer("PNG", (err: Error, buffer: Buffer): void => {
 				if (err)
 					reject(err);
 				else
-					resolve(buffer.toString("base64"));
+					resolve(buffer);
 			});
 		});
 	}
@@ -149,13 +154,26 @@ export class Display implements Display.Like {
 		}
 	}
 
+	public async toBuffer(): Promise<Buffer> {
+		const json: Buffer = Buffer.from(await this.toString());
+		let length: number = json.length;
+		const header: Buffer = Buffer.from([length >>> 8, length & 0xff]);
+		length += header.length;
+		const placeholder: Buffer | undefined = await this.getPlaceholder();
+
+		if (placeholder === undefined)
+			return Buffer.concat([header, json], length);
+		return Buffer.concat([header, json, placeholder], length + placeholder.length);
+	}
+
 	public async toJSON(): Promise<Display.Object> {
+		const placeholderBuffer: Buffer | undefined = await this.getPlaceholder();
 		return {
 			artists: this.artists,
 			horse: this.horse,
 			mimeType: (this.mimeType === "image/svg+xml") ? "image/png" : this.mimeType,
 			pageUrl: this.pageUrl,
-			placeholder:  await this.getPlaceholder(),
+			// placeholder: (!includePlaceholder || placeholderBuffer === undefined) ? undefined : placeholderBuffer.toString("base64"),
 			sources: this.sources,
 			sourceUrl: this.sourceUrl
 		};
@@ -174,7 +192,8 @@ export namespace Display {
 	export interface Like extends Readonly<Object> {
 		readonly object: Image;
 
-		getPlaceholder(): Promise<string | undefined>;
+		getPlaceholder(): Promise<Buffer | undefined>;
+		toBuffer(): Promise<Buffer>;
 		toJSON(): Promise<Object>;
 		toString(): Promise<string>;
 	}

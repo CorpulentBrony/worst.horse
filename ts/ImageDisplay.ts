@@ -21,13 +21,15 @@ export class ImageDisplay {
 	private _template: TemplateDocumentFragment;
 	public readonly elementId: string;
 	public readonly object: ImageDisplay.Object;
+	public readonly placeholder: string;
 
-	public static update(object: ImageDisplay.Object, elementId: string): ImageDisplay {
-		const imageDisplay: ImageDisplay = new this(object, elementId);
+	public static update(object: ImageDisplay.Object, url: string, elementId: string): ImageDisplay {
+		const imageDisplay: ImageDisplay = new this(object, url, elementId);
+		console.log("now url is", url);
 		return imageDisplay.updatePicture();
 	}
 
-	constructor(object: ImageDisplay.Object, elementId: string) { [this.elementId, this.object] = [elementId, object]; }
+	constructor(object: ImageDisplay.Object, url: string, elementId: string) { [this.elementId, this.object, this.placeholder] = [elementId, object, url]; }
 
 	private get anchorImage(): HTMLAnchorElement { return (this._anchorImage) ? this._anchorImage : this._anchorImage = <HTMLAnchorElement>Util.getElementByIdOrError(ANCHOR_IMAGE_ID, this.template); }
 	private get anchorSource(): HTMLAnchorElement { return (this._anchorSource) ? this._anchorSource : this._anchorSource = <HTMLAnchorElement>Util.getElementByIdOrError(ANCHOR_SOURCE_ID, this.template); }
@@ -64,7 +66,8 @@ export class ImageDisplay {
 	public updatePicture(): this {
 		Util.addResourceHint({ rel: "preconnect", href: "https://worst.horse" });
 		Util.doIfElementExistsById<HTMLElement>("header", (header: HTMLElement): void => { header.className = this.object.horse.replace(/ /, "-"); });
-		const placeholder: HTMLImageElement = Util.createElement("img", { alt: "Loading worst horse...", class: "image", src: "data:image/png;base64," + this.object.placeholder, type: "image/png" }, this.element);
+		console.log("placeholder is", this.placeholder);
+		const placeholder: HTMLImageElement = Util.createElement("img", { alt: "Loading worst horse...", class: "image", src: this.placeholder, type: "image/png" }, this.element);
 		const currentWidth: number = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || document.getElementsByTagName<"body">("body")[0].clientWidth;
 		let preload: HTMLLinkElement | undefined;
 		const horseNameFormatted: string = this.object.horse.replace(/^[a-z]| [a-z]/g, (firstLetter: string): string => firstLetter.toUpperCase());

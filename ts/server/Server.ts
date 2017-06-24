@@ -75,6 +75,13 @@ export class Server {
 				response.end(await Derpibooru.Image.Display.fromImage(searchResult));
 				return;
 			}
+
+			if (requestUrl.searchParams.has("binary")) {
+				response.setHeader("content-type", "application/octet-stream; type=worst.horse-image-response");
+				response.setHeader("link", "<https://worst.horse>; rel=dns-prefetch");
+				response.end(await Derpibooru.Image.Display.bufferFromImage(searchResult));
+				return;
+			}
 			const searchResultUrl = new Url.URL("https:" + searchResult.representations.large);
 			let imageRequest: Stream.Readable = await Request.stream(searchResultUrl);
 			response.setHeader("Cache-Control", "max-age=0, no-cache");
