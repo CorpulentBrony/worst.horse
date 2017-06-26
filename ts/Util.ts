@@ -1,4 +1,8 @@
 declare global {
+	interface Document {
+		getElementById<T extends HTMLElement>(elementId: string): T | null;
+	}
+
 	interface HTMLScriptElement {
 		addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture: boolean): void;
 		addEventListener(type: string, listener: EventListenerOrEventListenerObject, options: Partial<AddEventListenerOptions>): void;
@@ -43,7 +47,7 @@ export function doAddEventListenerOptionsSupport(): AddEventListenerOptions {
 	return addEventListenerOptionsSupport = result;
 }
 
-export function doIfElementExistsById<T extends HTMLElement>(elementId: string, doWhat: (element: T) => void, parent: { getElementById(elementId: string): HTMLElement | null } = document): HTMLElement | null {
+export function doIfElementExistsById<T extends HTMLElement>(elementId: string, doWhat: (element: T) => void, parent: { getElementById(elementId: string): HTMLElement | null; } = document): HTMLElement | null {
 	const element: HTMLElement | null = parent.getElementById(elementId);
 
 	if (element !== null)
@@ -51,12 +55,22 @@ export function doIfElementExistsById<T extends HTMLElement>(elementId: string, 
 	return element;
 }
 
-export function getElementByIdOrError(elementId: string, parent: { getElementById(elementId: string): HTMLElement | null } = document): HTMLElement {
-	const element: HTMLElement | null = parent.getElementById(elementId);
+export function getElementByIdOrError<T extends HTMLElement>(elementId: string, parent: { getElementById<T>(elementId: string): T | null; } = document): T {
+	const element: T | null = parent.getElementById<T>(elementId);
 
 	if (element === null)
 		throw new TypeError(`Not able to find element ID ${elementId} in the DOM.`);
 	return element;
+}
+
+export function getTemplateContent(element: { content?: DocumentFragment; firstChild: Node | null; }): DocumentFragment {
+	if (element.content)
+		return element.content;
+	const documentFragment: DocumentFragment = document.createDocumentFragment();
+
+	while (element.firstChild)
+		documentFragment.appendChild(element.firstChild);
+	return documentFragment;
 }
 
 export function loadScript(properties: Partial<HTMLScriptElement> & { src: string; }, onLoad?: (script: HTMLScriptElement) => void, options?: boolean | Partial<AddEventListenerOptions>, parent: HTMLElement = document.head): void {

@@ -51,7 +51,7 @@ export class ImageDisplay {
 	private get template(): TemplateDocumentFragment {
 		if (this._template)
 			return this._template;
-		const template = <DocumentFragment & { getElementsByClassName?(className: string): ArrayLike<Element>; }>(<HTMLTemplateElement>Util.getElementByIdOrError(TEMPLATE_ID)).content.cloneNode(true);
+		const template = <DocumentFragment & { getElementsByClassName?(className: string): ArrayLike<Element>; }>Util.getTemplateContent(Util.getElementByIdOrError<HTMLTemplateElement>(TEMPLATE_ID)).cloneNode(true);
 
 		if (!template.getElementById)
 			template.getElementById = function(elementId: string): HTMLElement | null { return <HTMLElement | null>template.querySelector("#" + elementId); }
@@ -83,7 +83,8 @@ export class ImageDisplay {
 					placeholder.remove();
 					img.classList.remove("hidden");
 					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove("hidden"));
-					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (img: HTMLDivElement): void => img.remove());
+					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (div: HTMLDivElement): void => div.remove());
+					// Util.doIfElementExistsById<HTMLDivElement>("loading-shadow", (div: HTMLDivElement): void => div.remove());
 					img.removeEventListener("load", onLoad);
 				});
 			}

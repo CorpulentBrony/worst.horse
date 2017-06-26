@@ -9,7 +9,7 @@ const DESTINATION_ELEMENT_ID: string = "picture";
 const LOADING_TEMPLATE_ID: string = "loadingTemplate";
 
 window.URL = window.URL || window.webkitURL;
-document.body.appendChild(<DocumentFragment>(<HTMLTemplateElement>Util.getElementByIdOrError(LOADING_TEMPLATE_ID)).content.cloneNode(true));
+// document.body.appendChild(Util.getTemplateContent(Util.getElementByIdOrError<HTMLTemplateElement>(LOADING_TEMPLATE_ID)).cloneNode(true));
 
 // function runUpdatePictureBinary(): void {
 // 	if (window.fetch)
@@ -19,6 +19,11 @@ document.body.appendChild(<DocumentFragment>(<HTMLTemplateElement>Util.getElemen
 // }
 
 async function updatePictureBinary(): Promise<void> {
+	// const loadingShadow: HTMLDivElement = Util.createElement<HTMLDivElement>("div", { id: "loading-shadow" });
+	// loadingShadow.attachShadow({ mode: "closed" }).appendChild(Util.getTemplateContent(Util.getElementByIdOrError<HTMLTemplateElement>(LOADING_TEMPLATE_ID)).cloneNode(true));
+	// document.body.appendChild(loadingShadow);
+	document.body.appendChild(Util.getTemplateContent(Util.getElementByIdOrError<HTMLTemplateElement>(LOADING_TEMPLATE_ID)).cloneNode(true));
+
 	if (!window.fetch)
 		await Util.loadScriptPromise({ async: true, src: "node_modules/whatwg-fetch/fetch.js" });
 	const response: Response = await window.fetch("image?binary");
