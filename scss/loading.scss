@@ -1,0 +1,28 @@
+@import "rainbow";
+
+$loading-font: "Press Start 2P", "Lucida Console", monospace;
+$loading-font-size: 5vmin;
+
+#loading {
+	font-family: $loading-font;
+	font-size: $loading-font-size;
+	letter-spacing: -0.1em;
+	text-align: center;
+}
+
+.overlay {
+	height: auto;
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	z-index: 1000;
+
+	img {
+		height: 22vh;
+		max-height: 22vh;
+		max-width: 100vw;
+		width: 24vh;
+	}
+}

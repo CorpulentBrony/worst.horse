@@ -4,6 +4,7 @@ import * as File from "./File";
 import * as Gm from "gm";
 import * as Http from "http";
 import * as Net from "net";
+import * as Path from "path";
 import * as Process from "process";
 import * as Request from "./Request";
 import * as Stream from "stream";
@@ -69,20 +70,20 @@ export class Server {
 			}
 			const searchResult: Derpibooru.Image = await Derpibooru.newRandom();
 
-			if (requestUrl.searchParams.has("json")) {
-				response.setHeader("content-type", "application/json; charset=utf-8");
-				response.setHeader("link", "<https://worst.horse>; rel=dns-prefetch");
-				response.end(await Derpibooru.Image.Display.fromImage(searchResult));
-				return;
-			}
-
 			if (requestUrl.searchParams.has("binary")) {
 				response.setHeader("content-type", "application/octet-stream; type=worst.horse-image-response");
 				response.setHeader("link", "<https://worst.horse>; rel=dns-prefetch");
 				response.end(await Derpibooru.Image.Display.bufferFromImage(searchResult));
 				return;
 			}
-			const searchResultUrl = new Url.URL("https:" + searchResult.representations.large);
+
+			if (requestUrl.searchParams.has("json")) {
+				response.setHeader("content-type", "application/json; charset=utf-8");
+				response.setHeader("link", "<https://worst.horse>; rel=dns-prefetch");
+				response.end(await Derpibooru.Image.Display.fromImage(searchResult));
+				return;
+			}
+			const searchResultUrl = new Url.URL(Path.resolve(searchResult.representations.large), "https://worst.horse");
 			let imageRequest: Stream.Readable = await Request.stream(searchResultUrl);
 			response.setHeader("Cache-Control", "max-age=0, no-cache");
 

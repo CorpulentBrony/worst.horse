@@ -1,3 +1,4 @@
+@import "mixins";
 @import "../node_modules/reset-css/reset";
 
 $colors: (
@@ -6,19 +7,11 @@ $colors: (
 	sunset-shimmer: (stroke: #d9a006, text: #f8d77b)
 );
 $caption-font-size: 3vmin;
-$font: "Open Sans", sans-serif;
-$header-font-sizes: (
-
-);
+$font: "Open Sans", "Verdana", sans-serif;
 $header-font-size: 15vmin;
 $header-margin: 1vmin;
 $image-height: 70vh;
 $image-width: 100vw;
-
-@mixin text-stroke($value) {
-	-webkit-text-stroke: $value;
-	text-stroke: $value;
-}
 
 html, head, body {
 	font-family: $font;
@@ -63,7 +56,7 @@ main {
 					@each $horse, $color in $colors {
 						.#{$horse} {
 							color: map-get($color, text);
-							@include text-stroke(0.2vmin map-get($color, stroke));
+							@include text-stroke(0.2vmin, map-get($color, stroke));
 						}
 					}
 				}
@@ -84,5 +77,22 @@ main {
 		}
 	}
 }
+
+// @mixin background-clip($value) {
+// 	-webkit-background-clip: $value;
+// 	background-clip: $value;
+// }
+
+// @mixin background-image-gradient($value) {
+// 	background-image: -webkit-gradient($value);
+// 	background-image: gradient($value);
+// }
+
+// .rainbow-text {
+// 	@include background-clip(text);
+// 	@include background-image-gradient((linear, left top, right top, color-stop(0, #f22), color-stop(0.15, #f2f), color-stop(0.3, #22f), color-stop(0.45, #2ff), color-stop(0.6, #2f2),color-stop(0.75, #2f2), color-stop(0.9, #ff2), color-stop(1, #f22)));
+// 	color: transparent;
+// 	@include text-stroke(0.2vmin #000000);
+// }
 
 /* – */

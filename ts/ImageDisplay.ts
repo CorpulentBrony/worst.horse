@@ -6,6 +6,7 @@ const ANCHOR_SOURCE_ID: string = "anchorSource";
 const CITE_AUTHOR_ID: string = "citeAuthor";
 const IF_AUTHOR_CLASS: string = "ifAuthor";
 const IF_SOURCE_ID: string = "ifSource";
+const LOADING_DIV_ID: string = "loading";
 const PICTURE_ELEMENT_ID: string = "pictureElement";
 const TEMPLATE_ID: string = "pictureTemplate";
 
@@ -25,7 +26,6 @@ export class ImageDisplay {
 
 	public static update(object: ImageDisplay.Object, url: string, elementId: string): ImageDisplay {
 		const imageDisplay: ImageDisplay = new this(object, url, elementId);
-		console.log("now url is", url);
 		return imageDisplay.updatePicture();
 	}
 
@@ -66,8 +66,7 @@ export class ImageDisplay {
 	public updatePicture(): this {
 		Util.addResourceHint({ rel: "preconnect", href: "https://worst.horse" });
 		Util.doIfElementExistsById<HTMLElement>("header", (header: HTMLElement): void => { header.className = this.object.horse.replace(/ /, "-"); });
-		console.log("placeholder is", this.placeholder);
-		const placeholder: HTMLImageElement = Util.createElement("img", { alt: "Loading worst horse...", class: "image", src: this.placeholder, type: "image/png" }, this.element);
+		const placeholder: HTMLImageElement = Util.createElement<HTMLImageElement>("img", { alt: "Loading worst horse...", class: "image", src: this.placeholder, type: "image/png" }, this.element);
 		const currentWidth: number = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || document.getElementsByTagName<"body">("body")[0].clientWidth;
 		let preload: HTMLLinkElement | undefined;
 		const horseNameFormatted: string = this.object.horse.replace(/^[a-z]| [a-z]/g, (firstLetter: string): string => firstLetter.toUpperCase());
@@ -76,11 +75,16 @@ export class ImageDisplay {
 			if (source.isDefault) {
 				this.preload = source.src;
 				const img: HTMLImageElement = Util.createElement<HTMLImageElement>("img", { alt: horseNameFormatted + " is worst horse", class: "hidden image", src: source.src, type: this.object.mimeType }, this.picture);
-				img.addEventListener<"error">("error", (): void => { img.src = "/image" });
-				img.addEventListener<"load">("load", (): void => {
+				img.addEventListener<"error">("error", function onError(): void {
+					img.src = "/image";
+					img.removeEventListener("error", onError);
+				});
+				img.addEventListener<"load">("load", function onLoad(): void {
 					placeholder.remove();
 					img.classList.remove("hidden");
 					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove("hidden"));
+					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (img: HTMLDivElement): void => img.remove());
+					img.removeEventListener("load", onLoad);
 				});
 			}
 			else {

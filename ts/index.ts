@@ -3,38 +3,33 @@ import { ImageDisplay } from "./ImageDisplay";
 import * as Util from "./Util";
 import * as WebFontLoader from "webfontloader";
 
+import "./webcomponents-loader";
+
 const DESTINATION_ELEMENT_ID: string = "picture";
-window.URL = window.URL || (<any>window).webkitURL;
+const LOADING_TEMPLATE_ID: string = "loadingTemplate";
 
-declare global {
-	interface HTMLScriptElement {
-		addEventListener(type: string, listener: EventListenerOrEventListenerObject, useCapture: boolean): void;
-		addEventListener(type: string, listener: EventListenerOrEventListenerObject, options: Partial<Util.AddEventListenerOptions>): void;
-		addEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
-	}
-}
+window.URL = window.URL || window.webkitURL;
+document.body.appendChild(<DocumentFragment>(<HTMLTemplateElement>Util.getElementByIdOrError(LOADING_TEMPLATE_ID)).content.cloneNode(true));
 
-// async function updatePicture(): Promise<void> {
-// 	const response: Response = await window.fetch("image?json");
-
-// 	if (!response.ok)
-// 		throw new Error("Network error while attempting to update image");
-// 	const imageDisplay: ImageDisplay = ImageDisplay.update(await response.json(), DESTINATION_ELEMENT_ID);
-// 	console.log("image updated", imageDisplay.object);
+// function runUpdatePictureBinary(): void {
+// 	if (window.fetch)
+// 		updatePictureBinary().catch(console.error);
+// 	else
+// 		Util.loadScript({ async: true, src: "node_modules/whatwg-fetch/fetch.js" }, (): Promise<void> => updatePictureBinary().catch(console.error));
 // }
 
 async function updatePictureBinary(): Promise<void> {
+	if (!window.fetch)
+		await Util.loadScriptPromise({ async: true, src: "node_modules/whatwg-fetch/fetch.js" });
 	const response: Response = await window.fetch("image?binary");
 
 	if (!response.ok)
 		throw new Error("Network error while attempting to update image");
 	const buffer: ArrayBuffer = await response.arrayBuffer();
 	const length: number = (new DataView(buffer)).getUint16(0, false);
-	console.log("length is", length);
 	const object: ImageDisplay.Object = JSON.parse(Buffer.from(buffer, 2, length).toString("utf8"));
 	// const url: string = window.URL.createObjectURL(new Blob(<any>new Uint8Array(buffer, 2 + length)), <any>{ type: "image/png" });
 	const url: string = "data:image/png;base64," + Buffer.from(buffer, 2 + length).toString("base64");
-	console.log("url is ", url);
 	const imageDisplay: ImageDisplay = ImageDisplay.update(object, url, DESTINATION_ELEMENT_ID);
 	console.log("image updated", imageDisplay.object);
 }
@@ -44,14 +39,18 @@ WebFontLoader.load({
 		families: ["FontAwesome"],
 		urls: ["/node_modules/font-awesome/css/font-awesome.min.css"]
 	},
-	google: { families: ["Open Sans:300,600,800"] }
+	google: { families: ["Open Sans:300,600,800", "Press Start 2P"] }
 });
 
-if (window.fetch)
-	updatePictureBinary().catch(console.error);
-else {
-	const fragment: DocumentFragment = document.createDocumentFragment();
-	const script: HTMLScriptElement = Util.createElement<HTMLScriptElement>("script", { async: "", src: "node_modules/whatwg-fetch/fetch.js", type: "application/javascript" }, fragment);
-	script.addEventListener("load", (): Promise<void> => updatePictureBinary().catch(console.error), Util.doAddEventListenerOptionsSupport().once ? { once: true } : false);
-	document.body.appendChild(fragment);
-}
+// if (window.customElements)
+// 	Util.loadScript({ async: true, src: "node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js" });
+// else
+// 	Util.loadScript({ async: true, src: "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js" }, (): void => Util.loadScript({ async: true, src: "node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js" }));
+
+if (window.WebComponents && !window.WebComponents.ready)
+	window.addEventListener("WebComponentsReady", function onWebComponentsReady(): void {
+		updatePictureBinary();
+		window.removeEventListener("WebComponentsReady", onWebComponentsReady);
+	});
+else
+	updatePictureBinary();

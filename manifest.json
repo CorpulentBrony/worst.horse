@@ -1,0 +1,39 @@
+{
+	"name": "worst.horse",
+	"short_name": "worst.horse",
+	"description": "Informing the world exactly who worst horse is",
+	"author": "Corpulent Brony",
+	"background_color": "#fff",
+	"developer": {
+		"name": "Corpulent Brony",
+		"url": "https://plus.google.com/+CorpulentBrony"
+	},
+	"display": "browser",
+	"icons": [
+		{ "sizes": "16x16", "src": "/icon/16x16.webp", "type": "image/webp" },
+		{ "sizes": "24x24", "src": "/icon/24x24.webp", "type": "image/webp" },
+		{ "sizes": "32x32", "src": "/icon/32x32.webp", "type": "image/webp" },
+		{ "sizes": "48x48", "src": "/icon/48x48.webp", "type": "image/webp" },
+		{ "sizes": "72x72", "src": "/icon/72x72.webp", "type": "image/webp" },
+		{ "sizes": "96x96", "src": "/icon/96x96.webp", "type": "image/webp" },
+		{ "sizes": "128x128", "src": "/icon/128x128.webp", "type": "image/webp" },
+		{ "sizes": "256x256", "src": "/icon/256x256.webp", "type": "image/webp" },
+		{ "sizes": "16x16", "src": "/icon/16x16.png", "type": "image/png" },
+		{ "sizes": "24x24", "src": "/icon/24x24.png", "type": "image/png" },
+		{ "sizes": "32x32", "src": "/icon/32x32.png", "type": "image/png" },
+		{ "sizes": "48x48", "src": "/icon/48x48.png", "type": "image/png" },
+		{ "sizes": "72x72", "src": "/icon/72x72.png", "type": "image/png" },
+		{ "sizes": "96x96", "src": "/icon/96x96.png", "type": "image/png" },
+		{ "sizes": "128x128", "src": "/icon/128x128.png", "type": "image/png" },
+		{ "sizes": "256x256", "src": "/icon/256x256.png", "type": "image/png" },
+		{ "sizes": "16x16 24x24 32x32 48x48 72x72 96x96 128x128 256x256", "src": "/icon/favicon.ico", "type": "image/x-icon" }
+	],
+	"orientation": "any",
+	"related_applications": [{
+		"platform": "web",
+		"url": "https://worst.horse"
+	}],
+	"scope": "/",
+	"start_url": "/",
+	"theme_color": "#ffc06d"
+}

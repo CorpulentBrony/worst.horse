@@ -69,6 +69,7 @@
     "@types/gm": ">=1.17.31",
     "@types/node": ">=7.0.27",
     "@types/webfontloader": ">=1.6.28",
+    "@webcomponents/webcomponentsjs": "git+ssh://git@github.com/WebComponents/webcomponentsjs.git",
     "font-awesome": "git+ssh://git@github.com/FortAwesome/Font-Awesome.git",
     "gm": ">=1.23.0",
     "highwayhash": ">=2.1.1",

@@ -99,6 +99,7 @@ if checkTarget "css all"; then
 	echo transpiling scss to css...;
 	#find "${SCSS_DIR}" -maxdepth 1 -name "*.scss" -type f -exec sh -c 'scss --style expanded --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
 	"${SCSS}" --style expanded --default-encoding UTF-8 "${INDEX_SCSS}" "${INDEX_CSS}";
+	"${SCSS}" --style expanded --default-encoding UTF-8 "${SCSS_DIR}loading.scss" "${CSS_DIR}loading.css";
 
 	if [ "${2}" = "debug" ]; then
 		echo not autoprefixing and minifying css...;
@@ -107,10 +108,12 @@ if checkTarget "css all"; then
 	else
 		echo autoprefixing and minifying css...;
 		"${POSTCSS}" "${INDEX_CSS}" --use autoprefixer --use cssnano | ./bin/exorcist --base "${CSS_DIR}" "${INDEX_MIN_CSS_MAP}" > "${INDEX_MIN_CSS}";
+		"${POSTCSS}" "${CSS_DIR}loading.css" --use autoprefixer --use cssnano | ./bin/exorcist --base "${CSS_DIR}" "${CSS_DIR}loading.min.css.map" > "${CSS_DIR}loading.min.css";
 	fi
 
 	echo fixing css source maps...;
 	"${SORCERY}" -i "${INDEX_MIN_CSS}";
+	"${SORCERY}" -i "${CSS_DIR}loading.min.css";
 fi
 
 if checkTarget "js server all"; then
@@ -122,4 +125,4 @@ if checkTarget "js server all"; then
 fi
 
 echo cleaning up...;
-rm -f gmon.out;
+rm -f ./gmon.out;

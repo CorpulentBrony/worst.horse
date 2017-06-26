@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8">
 		<link href="https://fonts.googleapis.com" rel="preconnect">
 		<link href="https://fonts.gstatic.com" rel="preconnect">
 		<link href="https://www.google-analytics.com" rel="preconnect">
-		<link href="https://derpicdn.net" rel="preconnect">
-		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
-		<base href="https://worst.horse">
-		<link rel="publisher" href="//plus.google.com/+CorpulentBrony" hreflang="en" type="text/html">
-		<link rel="bestpony" href="//iwtcits.com" hreflang="en" type="text/html">
+		<!--# include file="template/header.html" -->
 		<script async src="js/index.min.js" type="application/javascript"></script>
+		<!-- the webcomponents-loader script is currently broken when used with pagespeed; i've included my own shim based on the original in index.js -->
+		<!-- <script async src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js" type="application/javascript"></script> -->
 		<title>Worst Horse</title>
-		<link href="css/index.min.css" hreflang="en" rel="stylesheet" type="text/css">
+		<link async href="css/index.min.css" hreflang="en" rel="stylesheet" type="text/css">
+		<!--# include file="template/favicon.html" -->
 	</head>
 	<body>
 		<main>
@@ -22,19 +20,22 @@
 					<div aria-live="polite" aria-relevant="all" id="picture" role="main">
 						<noscript>
 							<!--# set var="noscript" value="yes" -->
-							<!--# include file="template.html" -->
+							<!--# include file="template/picture.html" -->
 						</noscript>
 					</div>
 					<footer class="hidden" id="footer" role="contentinfo">
-						Find out who <a href="https://iwtcits.com">best horse</a> is<br>
-						<a id="github" href="https://github.com/CorpulentBrony/worst.horse">Page source available on <span class="fa fa-github" title="Github"></span></a>
+						Find out who <a href="//iwtcits.com" rel="external" target="_blank">best horse</a> is<br>
+						<a id="github" href="//github.com/CorpulentBrony/worst.horse" rel="external" target="_blank">Page source available on <span class="fa fa-github" title="Github"></span></a>
 					</footer>
 				</div>
 			</section>
 		</main>
+		<template id="loadingTemplate">
+			<!--# include file="template/loading.html" -->
+		</template>
 		<template id="pictureTemplate">
 			<!--# set var="noscript" value="no" -->
-			<!--# include file="template.html" -->
+			<!--# include file="template/picture.html" -->
 		</template>
 	</body>
 </html> 

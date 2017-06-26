@@ -1,0 +1,33 @@
+@import "mixins";
+// http://joashpereira.com/blog/2015/09/12/colorful-rainbow-text-animation-in-css3/
+$color-sequence: #d65c97, #5cd666, #a55cd6, #5c7cd6, #d65c7a, #81d65c, #835cd6, #685cd6, #5c9dd6, #5cd670, #d6625c, #d6835c, #d6605c, #be5cd6, #5c8dd6, #95d65c, #d69d5c, #d65c81, #5cd666, #d67e5c, #64d65c;
+$cycle-count: 100;
+$cycle-distance: 5s;
+$total-duration: 10s;
+
+@keyframes color-text-flow-keys {
+	@for $i from 1 through length($color-sequence) {
+		$percentage: ($i - 1) * (100% / (length($color-sequence) - 1));
+		#{$percentage} { color: nth($color-sequence, $i); }
+	}
+}
+
+.color-text-flow {
+	@include text-stroke(0.2vmin);
+
+	span {
+		animation: {
+			direction: alternate;
+			duration: $total-duration;
+			fill-mode: forwards;
+			name: color-text-flow-keys;
+			iteration-count: infinite;
+		}
+
+		@for $i from 1 through $cycle-count {
+			&:nth-of-type(#{$i}) { animation-delay: $i * ($cycle-distance / $cycle-count) - $cycle-distance; }
+		}
+	}
+}
+
+/* – */
