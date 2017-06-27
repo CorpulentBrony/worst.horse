@@ -1,5 +1,6 @@
 // adapted from original webcomponents-loader.js script, with modifications to ensure it works with pagespeed.
 // I am only loading polyfills as needed and then reverting to original script to ensure WebComponentsReady event fires properly.
+// disabling ShadowDOM and CustomElements because I am not currently using them
 import * as Util from "./Util";
 
 const WEBCOMPONENTS_PATH: string = "node_modules/@webcomponents/webcomponentsjs/webcomponents-";
@@ -24,11 +25,11 @@ declare global {
 	if (!("import" in document.createElement<"link">("link")))
 		polyfills.push("hi");
 
-	if (!("attachShadow" in Element.prototype && "getRootNode" in Element.prototype) || (window.ShadyDOM && window.ShadyDOM.force))
-		polyfills.push("sd");
+	// if (!("attachShadow" in Element.prototype && "getRootNode" in Element.prototype) || (window.ShadyDOM && window.ShadyDOM.force))
+	// 	polyfills.push("sd");
 
-	if (!window.customElements || window.customElements.forcePolyfill)
-		polyfills.push("ce");
+	// if (!window.customElements || window.customElements.forcePolyfill)
+	// 	polyfills.push("ce");
 
 	if (!("content" in document.createElement<"template">("template")) || !window.Promise || !Array.from || !(document.createDocumentFragment().cloneNode() instanceof DocumentFragment))
 		polyfills = ["lite"];

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # dirs
 BIN_DIR="bin/";
@@ -7,7 +7,20 @@ JS_DIR="js/";
 SCSS_DIR="scss/";
 
 # files
+declare -a _CSS_NAMES=("index" "loading");
 _INDEX_NAME="index";
+SERVER_APP_JS="${JS_DIR}server/image.js";
+TSCONFIG_WEB="tsconfig.web.json";
+
+# commands
+BROWSERIFY="${BIN_DIR}browserify";
+POSTCSS="${BIN_DIR}postcss";
+SORCERY="${BIN_DIR}sorcery";
+SCSS=$(command -v scss);
+TSC="${BIN_DIR}tsc";
+UGLIFYJS="${BIN_DIR}uglifyjs";
+
+# less configurable file stuff
 _INDEX_CSS_DIR="${CSS_DIR}${_INDEX_NAME}";
 _INDEX_JS_DIR="${JS_DIR}${_INDEX_NAME}";
 INDEX_CSS="${_INDEX_CSS_DIR}.css";
@@ -20,16 +33,17 @@ INDEX_MIN_JS_MAP="${_INDEX_NAME}.min.js.map";
 INDEX_OUT_JS="${_INDEX_JS_DIR}.out.js";
 INDEX_OUT_JS_MAP="${INDEX_OUT_JS}.map";
 INDEX_SCSS="${SCSS_DIR}${_INDEX_NAME}.scss";
-SERVER_APP_JS="${JS_DIR}server/image.js";
-TSCONFIG_WEB="tsconfig.web.json";
+NUM_CSS_FILES=${#_CSS_NAMES[@]};
 
-# commands
-BROWSERIFY="${BIN_DIR}browserify";
-POSTCSS="${BIN_DIR}postcss";
-SORCERY="${BIN_DIR}sorcery";
-SCSS="/usr/local/bin/scss";
-TSC="${BIN_DIR}tsc";
-UGLIFYJS="${BIN_DIR}uglifyjs";
+# build _CSS_DIRS, CSS_FILES, CSS_MAPS, CSS_MIN_FILES, CSS_MIN_MAPS, and SCSS_FILES
+for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
+	_CSS_DIRS[${i}]="${CSS_DIR}${_CSS_NAMES[${i}]}";
+	CSS_FILES[${i}]="${_CSS_DIRS[${i}]}.css";
+	CSS_MAPS[${i}]="${CSS_FILES[${i}]}.map";
+	CSS_MIN_FILES[${i}]="${_CSS_DIRS[${i}]}.min.css";
+	CSS_MIN_MAPS[${i}]="${CSS_MIN_FILES[${i}]}.map";
+	SCSS_FILES[${i}]="${SCSS_DIR}${_CSS_NAMES[${i}]}.scss";
+done
 
 checkRegex() {
 	PATTERN=`echo "${2}" | sed "s/ /\$|^/g"`;
@@ -57,7 +71,7 @@ if ! checkTarget "css js server web all"; then
 	exit 1;
 fi
 
-echo building worst.horse...
+echo "building worst.horse [target=${TARGET}]...";
 
 echo setting working directory...
 cd "${0%/*}/../";
@@ -98,22 +112,27 @@ if checkTarget "css all"; then
 
 	echo transpiling scss to css...;
 	#find "${SCSS_DIR}" -maxdepth 1 -name "*.scss" -type f -exec sh -c 'scss --style expanded --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
-	"${SCSS}" --style expanded --default-encoding UTF-8 "${INDEX_SCSS}" "${INDEX_CSS}";
-	"${SCSS}" --style expanded --default-encoding UTF-8 "${SCSS_DIR}loading.scss" "${CSS_DIR}loading.css";
+	for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
+		"${SCSS}" --style expanded --default-encoding UTF-8 "${SCSS_FILES[${i}]}" "${CSS_FILES[${i}]}";
+	done
 
 	if [ "${2}" = "debug" ]; then
 		echo not autoprefixing and minifying css...;
-		cp "${INDEX_CSS}" "${INDEX_MIN_CSS}";
-		cp "${INDEX_CSS_MAP}" "${INDEX_MIN_CSS_MAP}";
+		for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
+			cp "${CSS_FILES[${i}]}" "${CSS_MIN_FILES[${i}]}";
+			cp "${CSS_MAPS[${i}]}" "${CSS_MIN_MAPS[${i}]}";
+		done
 	else
 		echo autoprefixing and minifying css...;
-		"${POSTCSS}" "${INDEX_CSS}" --use autoprefixer --use cssnano | ./bin/exorcist --base "${CSS_DIR}" "${INDEX_MIN_CSS_MAP}" > "${INDEX_MIN_CSS}";
-		"${POSTCSS}" "${CSS_DIR}loading.css" --use autoprefixer --use cssnano | ./bin/exorcist --base "${CSS_DIR}" "${CSS_DIR}loading.min.css.map" > "${CSS_DIR}loading.min.css";
+		for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
+			"${POSTCSS}" "${CSS_FILES[${i}]}" --use autoprefixer --use cssnano | ./bin/exorcist --base "${CSS_DIR}" "${CSS_MIN_MAPS[${i}]}" > "${CSS_MIN_FILES[${i}]}";
+		done
 	fi
 
 	echo fixing css source maps...;
-	"${SORCERY}" -i "${INDEX_MIN_CSS}";
-	"${SORCERY}" -i "${CSS_DIR}loading.min.css";
+	for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
+		"${SORCERY}" -i "${CSS_MIN_FILES[${i}]}";
+	done
 fi
 
 if checkTarget "js server all"; then

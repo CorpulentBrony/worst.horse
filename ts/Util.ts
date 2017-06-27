@@ -8,6 +8,24 @@ declare global {
 		addEventListener(type: string, listener: EventListenerOrEventListenerObject, options: Partial<AddEventListenerOptions>): void;
 		addEventListener(type: string, listener: EventListenerOrEventListenerObject): void;
 	}
+
+	interface TextDecodeOptions { stream?: boolean; }
+
+	interface TextDecoder { decode(input?: BufferSource, options?: TextDecodeOptions): USVString; }
+
+	interface TextDecoderOptions {
+		fatal?: boolean;
+		ignoreBOM?: boolean;
+	}
+
+	interface TextDecoderStatic {
+		(label?: string, options?: TextDecoderOptions): TextDecoder;
+		new (label?: string, options?: TextDecoderOptions): TextDecoder;
+	}
+
+	interface Window {
+		TextDecoder: TextDecoderStatic;
+	}
 }
 
 export type AddEventListenerOptions = { capture: boolean, once: boolean, passive: boolean };
@@ -28,6 +46,37 @@ export function createElement<T extends HTMLElement = HTMLElement>(name: string,
 	if (parent)
 		parent.appendChild(result);
 	return result;
+}
+
+export async function arrayBufferToString(buffer: ArrayBuffer, mimeType: string = "text/plain", encoding: string = "utf-8"): Promise<string> {
+	if ("TextDecoder" in window) {
+		const decoder = new window.TextDecoder(encoding);
+		return decoder.decode(buffer);
+	} else
+		return new Promise<string>((resolve: (value: string | PromiseLike<string>) => void, reject: (reason?: any) => void): void => {
+			const reader = new FileReader();
+			reader.addEventListener("load", function onLoad(): void {
+				resolve(reader.result);
+				reader.removeEventListener("load", onLoad);
+			});
+			reader.readAsText(new Blob([buffer], { type: mimeType }));
+		});
+}
+
+export async function arrayBufferToURL(buffer: ArrayBuffer, mimeType: string = "application/octet-stream"): Promise<string> {
+	const blob = new Blob([buffer], { type: mimeType });
+
+	if ("URL" in window && "createObjectURL" in window.URL)
+		return window.URL.createObjectURL(blob);
+	else 
+		return new Promise<string>((resolve: (value: string | PromiseLike<string>) => void, reject: (reason?: any) => void): void => {
+			const reader = new FileReader();
+			reader.addEventListener("load", function onLoad(): void {
+				resolve(reader.result);
+				reader.removeEventListener("load", onLoad);
+			});
+			reader.readAsDataURL(blob);
+		});
 }
 
 export function doAddEventListenerOptionsSupport(): AddEventListenerOptions {

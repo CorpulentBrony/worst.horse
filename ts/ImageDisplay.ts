@@ -1,4 +1,5 @@
 import { Derpibooru } from "./server/Derpibooru";
+import * as Polyfills from "./Polyfills";
 import * as Util from "./Util";
 
 const ANCHOR_IMAGE_ID: string = "anchorImage";
@@ -66,7 +67,8 @@ export class ImageDisplay {
 	public updatePicture(): this {
 		Util.addResourceHint({ rel: "preconnect", href: "https://worst.horse" });
 		Util.doIfElementExistsById<HTMLElement>("header", (header: HTMLElement): void => { header.className = this.object.horse.replace(/ /, "-"); });
-		const placeholder: HTMLImageElement = Util.createElement<HTMLImageElement>("img", { alt: "Loading worst horse...", class: "image", src: this.placeholder, type: "image/png" }, this.element);
+		const placeholderSrc: string = this.placeholder;
+		const placeholder: HTMLImageElement = Util.createElement<HTMLImageElement>("img", { alt: "Loading worst horse...", class: "image", src: placeholderSrc, type: "image/png" }, this.element);
 		const currentWidth: number = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || document.getElementsByTagName<"body">("body")[0].clientWidth;
 		let preload: HTMLLinkElement | undefined;
 		const horseNameFormatted: string = this.object.horse.replace(/^[a-z]| [a-z]/g, (firstLetter: string): string => firstLetter.toUpperCase());
@@ -76,15 +78,19 @@ export class ImageDisplay {
 				this.preload = source.src;
 				const img: HTMLImageElement = Util.createElement<HTMLImageElement>("img", { alt: horseNameFormatted + " is worst horse", class: "hidden image", src: source.src, type: this.object.mimeType }, this.picture);
 				img.addEventListener<"error">("error", function onError(): void {
+					console.log("there was an error loading the image, falling back to default image");
 					img.src = "/image";
 					img.removeEventListener("error", onError);
 				});
 				img.addEventListener<"load">("load", function onLoad(): void {
+					Polyfills.ChildNode.remove();
 					placeholder.remove();
+
+					if ("URL" in window && "revokeObjectURL" in window.URL)
+						window.URL.revokeObjectURL(placeholderSrc);
 					img.classList.remove("hidden");
 					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove("hidden"));
 					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (div: HTMLDivElement): void => div.remove());
-					// Util.doIfElementExistsById<HTMLDivElement>("loading-shadow", (div: HTMLDivElement): void => div.remove());
 					img.removeEventListener("load", onLoad);
 				});
 			}
