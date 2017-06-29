@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+	<url>
+		<changefreq>always</changefreq>
+		<image:image>
+			<image:caption>A random image of the worst horse</image:caption>
+			<image:loc>https://worst.horse/image</image:loc>
+			<image:title>Worst Horse</image:title>
+		</image:image>
+		<loc>https://worst.horse</loc> 
+		<priority>1.0</priority>
+	</url>
+</urlset>

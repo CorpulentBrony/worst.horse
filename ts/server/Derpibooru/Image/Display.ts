@@ -9,6 +9,52 @@ import * as Request from "../../Request";
 import { Set } from "../../../CustomTypes/Set";
 import * as Url from "url";
 
+// type PlaceholderFormats<T> = {
+// 	readonly all: T;
+// 	PNG?: T;
+// 	WEBP?: T;
+// }
+
+declare global {
+	interface ObjectConstructor {
+		keys<T>(obj: object): Array<keyof T>;
+	}
+}
+
+interface ValidPlaceholderFormats<T> {
+	PNG: T;
+	WEBP: T;
+}
+
+class PlaceholderFormats<T> implements Partial<ValidPlaceholderFormats<T>> {
+	public static readonly numFormats: number = 2;
+	public static readonly formats: ValidPlaceholderFormats<true> = { PNG: true, WEBP: true };
+	public static readonly formatKeys: Array<keyof ValidPlaceholderFormats<true>> = Object.keys<ValidPlaceholderFormats<true>>(PlaceholderFormats.formats);
+	public all: ArrayLike<T> | boolean | undefined;
+	public PNG?: T;
+	public WEBP?: T;
+
+	constructor(formats?: Partial<ValidPlaceholderFormats<T>>) {
+		Object.assign(this, formats);
+		Object.defineProperty(this, "all", {
+			enumerable: false,
+			get: (): ArrayLike<T> | boolean | undefined => {
+				const keys: Array<keyof Partial<ValidPlaceholderFormats<T>>> = Object.keys<Partial<ValidPlaceholderFormats<T>>>(this);
+
+				if (keys.length === 0)
+					return undefined;
+				else if (keys.some((property: keyof Partial<ValidPlaceholderFormats<T>>): boolean => typeof this[property] === "boolean"))
+					return PlaceholderFormats.formatKeys.every((property: keyof ValidPlaceholderFormats<true>): boolean => Boolean(this[property]));
+				else
+					return keys.map<T>((property: keyof ValidPlaceholderFormats<T>): T => <T>this[property]);
+			},
+			set: (value: T) => {
+				PlaceholderFormats.formatKeys.forEach((property: keyof ValidPlaceholderFormats<true>): void => { this[property] = value; })
+			}
+		});
+	}
+}
+
 export class Display implements Display.Like {
 	private static cache = new Map<string, Display>();
 	private static scaleDefinitions = new Map<keyof Image.Representations, Display.ScaleDefinition>([
@@ -23,26 +69,31 @@ export class Display implements Display.Like {
 
 	private _artists: Set<string>;
 	private _aspectRatio: number;
+	private _dimensions: Image.Dimensions;
 	private _horse: Derpibooru.Horse;
 	private _mimeType: string;
 	private _pageUrl: Url.URL;
-	private _placeholder: Promise<Buffer | undefined> | undefined;
+	private _placeholder: Promise<PlaceholderFormats<Promise<Buffer | undefined>>>;
 	private _sources: Set<Display.Source>;
 	private _sourceUrl: Url.URL | undefined;
 	public readonly object: Image;
-	private isPlaceholderSet: boolean;
+	public isPlaceholderSet: PlaceholderFormats<boolean>;
 	private isSourceUrlSet: boolean;
 	private subtags: Map<string, Set<string>>;
 
-	public static async bufferFromImage(object: Image): Promise<Buffer> {
+	public static async bufferFromImage(object: Image, headers?: { [header: string]: string; }): Promise<Buffer> {
 		const display = new this(object);
-		return display.toBuffer();
+		const headersDefined: boolean = headers !== undefined;
+		const acceptsWebp: boolean = headersDefined && headers!.accept !== undefined && /webp/i.test(headers!.accept);
+		const userAgentAcceptsWebp: boolean = headersDefined && headers!["user-agent"] !== undefined && /OPR\/(1[1-9]|[2-9][0-9])|Chrome\/(3[2-9]|[4-9][0-9])/i.test(headers!["user-agent"]);
+		const format: keyof ValidPlaceholderFormats<never> = (acceptsWebp || userAgentAcceptsWebp) ? "WEBP" : "PNG";
+		return display.toBuffer(format);
 	}
 
-	public static async fromImage(object: Image): Promise<string> {
-		const display = new this(object);
-		return display.toString();
-	}
+	// public static async fromImage(object: Image): Promise<string> {
+	// 	const display = new this(object);
+	// 	return display.toString();
+	// }
 
 	private static round(x: number): number { return x + 0.5 << 1 >> 1; }
 
@@ -51,16 +102,17 @@ export class Display implements Display.Like {
 
 		if (Display.cache.has(object.id)) {
 			const cached: Display = Display.cache.get(object.id)!;
-			[this._artists, this._horse, this._mimeType, this._pageUrl, this._placeholder, this._sources, this._sourceUrl, this.isPlaceholderSet, this.isSourceUrlSet]
-			 = [cached.artists, cached.horse, cached.mimeType, cached.pageUrl, cached.getPlaceholder(), cached.sources, cached.sourceUrl, true, true];
+			[this._artists, this._dimensions, this._horse, this._mimeType, this._pageUrl, this._placeholder, this._sources, this._sourceUrl, this.isPlaceholderSet, this.isSourceUrlSet]
+			 = [cached.artists, cached.dimensions, cached.horse, cached.mimeType, cached.pageUrl, cached.getPlaceholder(), cached.sources, cached.sourceUrl, cached.isPlaceholderSet, true];
 		} else {
-			[this.subtags, this.isSourceUrlSet] = [new Map<string, Set<string>>(), false];
+			[this._placeholder, this.isPlaceholderSet, this.isSourceUrlSet, this.subtags] = [Promise.resolve(new PlaceholderFormats<Promise<Buffer>>()), new PlaceholderFormats<boolean>(), false, new Map<string, Set<string>>()];
 			Display.cache.set(object.id, this);
 		}
 	}
 
 	public get artists(): Set<string> { return (this._artists) ? this._artists : this._artists = this.getSubtags("artist"); }
 	private get aspectRatio(): number { return (this._aspectRatio !== undefined) ? this._aspectRatio : this._aspectRatio = this.object.width / this.object.height; }
+	public get dimensions(): Image.Dimensions { return (this._dimensions) ? this._dimensions : this._dimensions = { height: this.object.height, width: this.object.width }; }
 	public get horse(): Derpibooru.Horse { return (this._horse) ? this._horse : this._horse = this.object.horse; }
 	public get mimeType(): string { return (this._mimeType !== undefined) ? this._mimeType : this._mimeType = this.object.mime_type; }
 	public get pageUrl(): Url.URL { return (this._pageUrl) ? this._pageUrl : this._pageUrl = new Url.URL(this.object.id, Process.env.npm_package_config_derpibooruCanonical); }
@@ -103,23 +155,43 @@ export class Display implements Display.Like {
 		return this._sourceUrl;
 	}
 
-	public async getPlaceholder(): Promise<Buffer | undefined> {
-		if (this.isPlaceholderSet)
+	private async getAllPlaceholders(): Promise<PlaceholderFormats<Promise<Buffer | undefined>>> {
+		if (this.isPlaceholderSet.all)
 			return this._placeholder;
-		this.isPlaceholderSet = true;
+		this.isPlaceholderSet.all = true;
+		const result = new PlaceholderFormats<Promise<Buffer | undefined>>();
+		PlaceholderFormats.formatKeys.forEach((format: keyof ValidPlaceholderFormats<true>): void => { result[format] = this.getParticularPlaceholder(format); });
+		return result;
+	}
+
+	private async getParticularPlaceholder(format: keyof ValidPlaceholderFormats<Promise<Buffer>>): Promise<Buffer | undefined> {
+		const placeholder: PlaceholderFormats<Promise<Buffer | undefined>> = await this._placeholder;
+
+		if (this.isPlaceholderSet[format])
+			return placeholder[format];
+		this.isPlaceholderSet[format] = true;
 		const thumbnail: string = this.object.representations["thumb_tiny"];
 
 		if (!thumbnail || thumbnail.length === 0)
 			return undefined;
 		const gm: Gm.State = Gm(await Request.stream(new Url.URL(Path.resolve(thumbnail), "https://worst.horse"))).filter("Gaussian").resize(3, 3);
-		return this._placeholder = new Promise<Buffer>((resolve: (value: Buffer | PromiseLike<Buffer>) => void, reject: (reason?: any) => void): void => {
-			gm.toBuffer("PNG", (err: Error, buffer: Buffer): void => {
+		return placeholder[format] = new Promise<Buffer>((resolve: (value: Buffer | PromiseLike<Buffer>) => void, reject: (reason?: any) => void): void => {
+			gm.toBuffer(format, (err: Error, buffer: Buffer): void => {
 				if (err)
 					reject(err);
 				else
 					resolve(buffer);
 			});
 		});
+	}
+
+	public async getPlaceholder(format: keyof ValidPlaceholderFormats<Promise<Buffer>>): Promise<Buffer | undefined>;
+	public async getPlaceholder(): Promise<PlaceholderFormats<Promise<Buffer | undefined>>>;
+	public async getPlaceholder(format?: keyof ValidPlaceholderFormats<Promise<Buffer>>): Promise<Buffer | undefined | PlaceholderFormats<Promise<Buffer | undefined>>> {
+		if (format !== undefined)
+			return this.getParticularPlaceholder(format);
+		else
+			return this.getAllPlaceholders();
 	}
 
 	private getSubtags(targetTag: string): Set<string> {
@@ -154,32 +226,32 @@ export class Display implements Display.Like {
 		}
 	}
 
-	public async toBuffer(): Promise<Buffer> {
-		const json: Buffer = Buffer.from(await this.toString());
+	public async toBuffer(placeholderFormat: keyof ValidPlaceholderFormats<never>): Promise<Buffer> {
+		const json: Buffer = Buffer.from(await this.toString(placeholderFormat));
 		let length: number = json.length;
 		const header: Buffer = Buffer.from([length >>> 8, length & 0xff]);
 		length += header.length;
-		const placeholder: Buffer | undefined = await this.getPlaceholder();
+		const placeholder: Buffer | undefined = await this.getPlaceholder(placeholderFormat);
 
 		if (placeholder === undefined)
 			return Buffer.concat([header, json], length);
 		return Buffer.concat([header, json, placeholder], length + placeholder.length);
 	}
 
-	public async toJSON(): Promise<Display.Object> {
-		const placeholderBuffer: Buffer | undefined = await this.getPlaceholder();
+	public async toJSON(placeholderFormat?: keyof ValidPlaceholderFormats<never>): Promise<Display.Object> {
 		return {
 			artists: this.artists,
+			dimensions: this.dimensions,
 			horse: this.horse,
 			mimeType: (this.mimeType === "image/svg+xml") ? "image/png" : this.mimeType,
 			pageUrl: this.pageUrl,
-			// placeholder: (!includePlaceholder || placeholderBuffer === undefined) ? undefined : placeholderBuffer.toString("base64"),
+			placeholderFormat,
 			sources: this.sources,
 			sourceUrl: this.sourceUrl
 		};
 	}
 
-	public async toString(): Promise<string> { return JSON.stringify(await this.toJSON()); }
+	public async toString(placeholderFormat?: keyof ValidPlaceholderFormats<never>): Promise<string> { return JSON.stringify(await this.toJSON(placeholderFormat)); }
 }
 
 export namespace Display {
@@ -192,10 +264,11 @@ export namespace Display {
 	export interface Like extends Readonly<Object> {
 		readonly object: Image;
 
-		getPlaceholder(): Promise<Buffer | undefined>;
-		toBuffer(): Promise<Buffer>;
-		toJSON(): Promise<Object>;
-		toString(): Promise<string>;
+		getPlaceholder(format: keyof PlaceholderFormats<Promise<Buffer>>): Promise<Buffer | undefined>;
+		getPlaceholder(): Promise<PlaceholderFormats<Promise<Buffer | undefined>>>;
+		toBuffer(placeholderFormat: keyof ValidPlaceholderFormats<never>): Promise<Buffer>;
+		toJSON(placeholderFormat?: keyof ValidPlaceholderFormats<never>): Promise<Object>;
+		toString(placeholderFormat?: keyof ValidPlaceholderFormats<never>): Promise<string>;
 	}
 
 	export interface Object extends ObjectAggregateSet<string>, ObjectParticulars<Url.URL> {}
@@ -206,10 +279,12 @@ export namespace Display {
 	}
 
 	export interface ObjectParticulars<T extends Src> {
+		dimensions: Image.Dimensions;
 		horse: Derpibooru.Horse;
 		mimeType: string;
 		pageUrl: T;
 		placeholder?: string;
+		placeholderFormat?: keyof ValidPlaceholderFormats<never>;
 		sourceUrl?: T;
 	}
 

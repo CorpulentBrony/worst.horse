@@ -1,14 +1,15 @@
-<figure>
-	<picture id="pictureElement">
+<!-- look at https://blog.codeship.com/json-ld-building-meaningful-data-apis/ -->
+<figure itemprop="mainEntityOfPage" itemscope itemtype="//schema.org/VisualArtwork">
+	<picture id="pictureElement" itemprop="encoding">
 		<!--# if expr="$noscript = yes" -->
-			<img class="image" src="image" alt="Applejack is worst horse">
+			<img class="image" itemprop="image" src="image" alt="Applejack is worst horse">
 		<!--# endif -->
 	</picture>
-	<figcaption>
+	<figcaption id="pictureCaption">
 		<!--# if expr="$noscript = yes" -->
-			Image hosted by <a href="https://derpibooru.org" target="_blank">Derpibooru</a>.  Cannot provide further source information unless you enable JavaScript and/or get a better browser.
+			Image hosted by <a href="https://derpibooru.org">Derpibooru</a>.  Cannot provide further source information unless you enable JavaScript and/or get a better browser.
 		<!--# else -->
-			<a id="anchorImage" rel="external" target="_blank">Image</a><span class="ifAuthor"> by <cite id="citeAuthor">some dude</cite></span><span id="ifSource"> (<a id="anchorSource" rel="external" target="_blank">source</a>)</span><span class="ifAuthor"> and</span> hosted by <a href="https://derpibooru.org" rel="external" target="_blank">Derpibooru</a>.
+			<a id="anchorImage" itemprop="url" rel="external">Image</a><span class="ifAuthor"> by <cite itemprop="author" itemscope itemtype="//schema.org/Person"><span id="citeAuthor" itemprop="name"></span></cite></span><span id="ifSource"> (<a id="anchorSource" itemprop="sameAs" rel="cite external">source</a>)</span><span class="ifAuthor"> and</span> hosted by <a href="//derpibooru.org" itemprop="publisher" itemscope itemtype="//schema.org/Organization" rel="external">Derpibooru</a>.
 		<!--# endif -->
 	</figcaption>
 </figure>

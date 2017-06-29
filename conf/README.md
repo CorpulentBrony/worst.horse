@@ -1,2 +1,2 @@
 # conf
-These are the [nginx](https://nginx.org) conf files for this host.  The files referenced from the `server.conf.d/` directory are not currently uploaded anywhere.  If I ever decide to upload the rest of my nginx config files to github then these may also be included then.
+These are the [nginx](https://nginx.org) conf files for this host.  The files referenced from the `server.conf.d/` directory are not currently uploaded anywhere.  If I ever decide to upload the rest of my nginx config files to [github](https://github.com/CorpulentBrony) then these may also be included then.

@@ -5,15 +5,18 @@ BIN_DIR="bin/";
 CSS_DIR="css/";
 JS_DIR="js/";
 SCSS_DIR="scss/";
+TEMPLATE_DIR="template/";
 
 # files
 declare -a _CSS_NAMES=("index" "loading");
 _INDEX_NAME="index";
-SERVER_APP_JS="${JS_DIR}server/image.js";
+_STRUCTURED_DATA_NAME="structured-data";
+SERVER_APP_JS="${JS_DIR}server/index.js";
 TSCONFIG_WEB="tsconfig.web.json";
 
 # commands
 BROWSERIFY="${BIN_DIR}browserify";
+HTML_MINIFIER="${BIN_DIR}html-minifier";
 POSTCSS="${BIN_DIR}postcss";
 SORCERY="${BIN_DIR}sorcery";
 SCSS=$(command -v scss);
@@ -23,6 +26,7 @@ UGLIFYJS="${BIN_DIR}uglifyjs";
 # less configurable file stuff
 _INDEX_CSS_DIR="${CSS_DIR}${_INDEX_NAME}";
 _INDEX_JS_DIR="${JS_DIR}${_INDEX_NAME}";
+_STRUCTURED_DATA_DIR="${TEMPLATE_DIR}${_STRUCTURED_DATA_NAME}";
 INDEX_CSS="${_INDEX_CSS_DIR}.css";
 INDEX_CSS_MAP="${INDEX_CSS}.map";
 INDEX_JS="${_INDEX_JS_DIR}.js";
@@ -34,6 +38,8 @@ INDEX_OUT_JS="${_INDEX_JS_DIR}.out.js";
 INDEX_OUT_JS_MAP="${INDEX_OUT_JS}.map";
 INDEX_SCSS="${SCSS_DIR}${_INDEX_NAME}.scss";
 NUM_CSS_FILES=${#_CSS_NAMES[@]};
+STRUCTURED_DATA="${_STRUCTURED_DATA_DIR}.jsonld";
+STRUCTURED_DATA_MIN="${_STRUCTURED_DATA_DIR}.min.jsonld";
 
 # build _CSS_DIRS, CSS_FILES, CSS_MAPS, CSS_MIN_FILES, CSS_MIN_MAPS, and SCSS_FILES
 for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
@@ -64,8 +70,8 @@ else
 	TARGET="$1";
 fi
 
-if ! checkTarget "css js server web all"; then
-	echo "usage: build [css | js | server | web | all] [debug]";
+if ! checkTarget "css js json server web all"; then
+	echo "usage: build [css | js | json | server | web | all] [debug]";
 	echo -e "(default to all)\n";
 	echo "cannot build ${TARGET}; exiting";
 	exit 1;
@@ -104,6 +110,16 @@ if checkTarget "js server web all"; then
 		echo fixing web app source maps...;
 		"${SORCERY}" -i "${INDEX_MIN_JS}";
 	fi
+fi
+
+if checkTarget "json web all"; then
+	if [ "${2}" = "debug" ]; then
+			echo not minifying json...;
+			cp "${STRUCTURED_DATA}" "${STRUCTURED_DATA_MIN}";
+		else
+			echo minifying json...;
+			"${HTML_MINIFIER}" --collapse-inline-tag-whitespace --collapse-whitespace --process-scripts ["application/ld+json"] --quote-character "\"" --remove-comments --output "${STRUCTURED_DATA_MIN}" "${STRUCTURED_DATA}";
+		fi
 fi
 
 if checkTarget "css all"; then

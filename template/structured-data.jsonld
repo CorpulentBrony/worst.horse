@@ -1,0 +1,76 @@
+{
+	"@context": "https://schema.org",
+	"@type": "WebPage",
+	"about": {
+		"@type": "Thing",
+		"description": "Informing the world exactly who worst horse is."
+	},
+	"accessMode": "visual",
+	"accessModeSufficient": "visual",
+	"audience": {
+		"@type": "Audience",
+		"audienceType": "bronies",
+		"alternateName": "horse fuckers",
+		"description": "People who like the TV show My Little Pony: Friendship is Magic way too much",
+		"image": "http://valleyadvocate.com/wp-content/uploads/2015/03/va11-brony-20151-e1426106036636.jpeg",
+		"mainEntityOfPage": "https://worst.horse",
+		"name": "brony audience",
+		"sameAs": "https://en.wikipedia.org/wiki/Bronies:_The_Extremely_Unexpected_Adult_Fans_of_My_Little_Pony"
+	},
+	"author": {
+		"@type": "Person",
+		"additionalName": "Corpulent Brony",
+		"address": {
+			"@type": "PostalAddress",
+			"addressCountry": "US",
+			"addressLocality": "Orlando",
+			"addressRegion": "FL",
+			"postOfficeBoxNumber": "621622",
+			"postalCode": "32862-1622"
+		},
+		"email": "corpulent@brony.email",
+		"gender": "horse fucker",
+		"givenName": "Josh",
+		"honorificPrefix": "Mr.",
+		"nationality": "US",
+		"telephone": "+1 (405) IWTCIRD",
+		"weight": {
+			"@type": "QuantitativeValue",
+			"unitText": "corpulent",
+			"value": 1
+		},
+		"name": "Corpulent Brony",
+		"url": "https://plus.google.com/+CorpulentBrony"
+	},
+	"encoding": {
+		"@type": "MediaObject",
+		"contentUrl": "https://worst.horse",
+		"encodingFormat": "html"
+	},
+	"fileFormat": "text/html",
+	"headline": "Who is the worst horse?",
+	"isAccessibleForFree": true,
+	"keywords": "worst horse, worst pony, my little pony, brony, applejack, starlight glimmer, sunset shimmer",
+	"license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+	"material": "bits",
+	"provider": {
+		"@type": "Organization",
+		"email": "thesmilingpony@derpibooru.org",
+		"name": "Derpibooru",
+		"logo": "https://derpicdn.net/img/view/2017/1/2/1330297__safe_artist-colon-cheezedoodle96_trixie_cutie+mark_derpibooru_derpibooru+logo_logo_meta_no+pony_simple+background_-dot-svg+available_transpare.png",
+		"alternateName": "Trixiebooru",
+		"description": "Derpibooru is an image booru (sharing/commenting/voting system) specifically aimed at fans of the show My Little Pony: Friendship is Magic.",
+		"sameAs": "https://derpibooru.org",
+		"url": "https://derpibooru.org"
+	},
+	"thumbnailUrl": "https://worst.horse/icon/150x150.png",
+	"timeRequired": "P45S",
+	"typicalAgeRange": "16-",
+	"additionalType": "https://schema.org/ItemPage",
+	"description": "Informing the world exactly who worst horse is.",
+	"image": "https://worst.horse/image",
+	"mainEntityOfPage": "https://worst.horse",
+	"name": "worst.horse",
+	"sameAs": "https://worst.horse",
+	"url": "https://worst.horse"
+}

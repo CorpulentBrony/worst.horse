@@ -21,6 +21,6 @@
 	},
 	"compileOnSave": true,
 	"files": [
-		"ts/server/image.ts"
+		"ts/server/index.ts"
 	]
 }
