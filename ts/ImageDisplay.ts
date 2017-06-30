@@ -70,10 +70,11 @@ export class ImageDisplay {
 		const placeholderSrc: string = this.placeholder;
 		const placeholder: HTMLImageElement = Util.createElement<HTMLImageElement>("img", {
 			alt: "Loading worst horse...",
-			class: "image",
+			class: "flex-child image",
 			height: this.object.dimensions.height.toString(),
+			id: "placeholder",
 			src: placeholderSrc,
-			type: "image/" + (this.object.placeholderFormat !== undefined) ? this.object.placeholderFormat!.toLowerCase() : "png",
+			type: "image/" + ((this.object.placeholderFormat !== undefined) ? this.object.placeholderFormat!.toLowerCase() : "png"),
 			width: this.object.dimensions.width.toString()
 		}, this.element);
 		const currentWidth: number = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || document.getElementsByTagName<"body">("body")[0].clientWidth;
@@ -93,12 +94,13 @@ export class ImageDisplay {
 					type: this.object.mimeType,
 					width: this.object.dimensions.width.toString()
 				}, this.picture);
-				img.addEventListener<"error">("error", function onError(): void {
+				const onError = (): void => {
 					console.log("there was an error loading the image, falling back to default image");
 					img.src = "/image";
 					Util.doIfElementExistsById<HTMLElement>("pictureCaption", (caption: HTMLElement): void => { caption.innerText = "Error loading image, falling back to a backup worst horse.  Sorry, I don't know much about this one."; })
 					img.removeEventListener("error", onError);
-				});
+				};
+				img.addEventListener<"error">("error", onError);
 				img.addEventListener<"load">("load", function onLoad(): void {
 					Polyfills.ChildNode.remove();
 					placeholder.remove();
@@ -106,9 +108,11 @@ export class ImageDisplay {
 					if ("URL" in window && "revokeObjectURL" in window.URL)
 						window.URL.revokeObjectURL(placeholderSrc);
 					img.classList.remove("hidden");
+					Util.doIfElementExistsById<HTMLElement>("pictureCaption", (caption: HTMLElement): void => caption.classList.remove("hidden"));
 					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove("hidden"));
 					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (div: HTMLDivElement): void => div.remove());
 					img.removeEventListener("load", onLoad);
+					img.removeEventListener("error", onError);
 				});
 			}
 			else {

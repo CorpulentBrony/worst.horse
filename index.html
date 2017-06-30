@@ -11,19 +11,20 @@
 		<!--# include file="template/favicon.html" -->
 	</head>
 	<body>
-		<main>
+		<main role="main">
 			<section>
-				<div class="main">
-					<header role="banner"><div><h1 class="applejack" id="header">Worst Horse</h1></div></header>
-					<div aria-live="polite" aria-relevant="all" id="picture" role="main">
+				<div class="center">
+					<noscript><header class="flex-child" role="banner"><h1 class="applejack">Worst Horse</h1></header></noscript>
+					<header class="flex-child" role="banner"><h1 class="hidden" id="header">Worst Horse</h1></header>
+					<div aria-live="polite" aria-relevant="all" class="flex-child" id="picture">
 						<noscript>
 							<!--# set var="noscript" value="yes" -->
 							<!--# include file="template/picture.html" -->
 						</noscript>
 					</div>
 					<footer class="hidden" id="footer" role="contentinfo">
-						Find out who <a href="//iwtcits.com" rel="crush external friend sweetheart">best horse</a> is<br>
-						<a id="github" href="//github.com/CorpulentBrony/worst.horse" rel="code-repository content-repository external source">Page source available on <span class="fa fa-github" title="Github"></span></a>
+						<div class="flex-child">Find out who <a href="//iwtcits.com" rel="crush external friend sweetheart">best horse</a> is</div>
+						<div id="github" class="flex-child"><a href="//github.com/CorpulentBrony/worst.horse" rel="code-repository content-repository external source">Page source available on <span class="fa fa-github" title="Github"></span></a></div>
 					</footer>
 				</div>
 			</section>
