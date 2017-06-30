@@ -5,7 +5,6 @@
     "bufferNullGzipped": "[31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 203, 43, 205, 201, 1, 0, 79, 252, 203, 37, 4, 0, 0, 0]",
     "bufferOk": "[79, 75]",
     "cacheDirectory": "/var/cache/httpd/worst.horse/image/cache",
-    "converterServerSocketFile": "/var/www/html/worst.horse/converter",
     "defaultMimeType": "application/octet-stream",
     "defaultTextEncoding": "utf8",
     "derpibooruCanonical": "https://derpibooru.org",
@@ -28,8 +27,8 @@
   },
   "scripts": {
     "prepare": "bin/build",
-    "start": "node js/server/index.js &",
-    "stop": "kill -9 $(ps aux | grep '[n]ode .*server/index.js' | awk '{print $2}')"
+    "start": "NODE_ENV=production pm2 start js/server/index.js --name=\"worst.horse\"",
+    "stop": "pm2 stop \"worst.horse\""
   },
   "repository": {
     "type": "git",

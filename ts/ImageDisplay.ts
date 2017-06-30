@@ -5,8 +5,10 @@ import * as Util from "./Util";
 const ANCHOR_IMAGE_ID: string = "anchorImage";
 const ANCHOR_SOURCE_ID: string = "anchorSource";
 const CITE_AUTHOR_ID: string = "citeAuthor";
+const HIDDEN_CLASS: string = "hidden";
 const IF_AUTHOR_CLASS: string = "ifAuthor";
 const IF_SOURCE_ID: string = "ifSource";
+const INVISIBLE_CLASS: string = "invisible";
 const LOADING_DIV_ID: string = "loading";
 const PICTURE_ELEMENT_ID: string = "pictureElement";
 const TEMPLATE_ID: string = "pictureTemplate";
@@ -86,7 +88,7 @@ export class ImageDisplay {
 				this.preload = source.src;
 				const img: HTMLImageElement = Util.createElement<HTMLImageElement>("img", {
 					alt: horseNameFormatted + " is worst horse",
-					class: "hidden image",
+					class: HIDDEN_CLASS + " image",
 					height: this.object.dimensions.height.toString(),
 					itemprop: "image",
 					longdesc: this.object.pageUrl,
@@ -107,9 +109,9 @@ export class ImageDisplay {
 
 					if ("URL" in window && "revokeObjectURL" in window.URL)
 						window.URL.revokeObjectURL(placeholderSrc);
-					img.classList.remove("hidden");
-					Util.doIfElementExistsById<HTMLElement>("pictureCaption", (caption: HTMLElement): void => caption.classList.remove("hidden"));
-					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove("hidden"));
+					img.classList.remove(HIDDEN_CLASS);
+					Util.doIfElementExistsById<HTMLElement>("pictureCaption", (caption: HTMLElement): void => caption.classList.remove(INVISIBLE_CLASS));
+					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove(INVISIBLE_CLASS));
 					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (div: HTMLDivElement): void => div.remove());
 					img.removeEventListener("load", onLoad);
 					img.removeEventListener("error", onError);
@@ -125,12 +127,12 @@ export class ImageDisplay {
 		if (Array.isArray(this.object.artists) && this.object.artists.length > 0)
 			this.citeAuthor.innerText = this.object.artists.join((this.object.artists.length === 2) ? " and " : ", ").replace(/, (?=[^,]+$)/, ", and ");
 		else
-			Array.prototype.forEach.call(this.template.getElementsByClassName(IF_AUTHOR_CLASS), (element: Element): void => element.classList.add("hidden"));
+			Array.prototype.forEach.call(this.template.getElementsByClassName(IF_AUTHOR_CLASS), (element: Element): void => element.classList.add(HIDDEN_CLASS));
 
 		if (typeof this.object.sourceUrl === "string" && this.object.sourceUrl.length > 0)
 			this.anchorSource.href = this.object.sourceUrl;
 		else
-			Util.getElementByIdOrError(IF_SOURCE_ID, this.template).classList.add("hidden");
+			Util.getElementByIdOrError(IF_SOURCE_ID, this.template).classList.add(HIDDEN_CLASS);
 		this.element.appendChild(this.template);
 		return this;
 	}

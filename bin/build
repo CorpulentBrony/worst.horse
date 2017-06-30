@@ -16,6 +16,7 @@ TSCONFIG_WEB="tsconfig.web.json";
 
 # commands
 BROWSERIFY="${BIN_DIR}browserify";
+EXORCIST="${BIN_DIR}exorcist";
 HTML_MINIFIER="${BIN_DIR}html-minifier";
 POSTCSS="${BIN_DIR}postcss";
 SORCERY="${BIN_DIR}sorcery";
@@ -96,7 +97,7 @@ if checkTarget "js server web all"; then
 		"${TSC}" -p "${TSCONFIG_WEB}";
 
 		echo browserifying web app...;
-		"${BROWSERIFY}" "${INDEX_JS}" --debug | ./bin/exorcist --base "${JS_DIR}" "${INDEX_OUT_JS_MAP}" > "${INDEX_OUT_JS}";
+		"${BROWSERIFY}" "${INDEX_JS}" --debug | "${EXORCIST}" --base "${JS_DIR}" "${INDEX_OUT_JS_MAP}" > "${INDEX_OUT_JS}";
 
 		if [ "${2}" = "debug" ]; then
 			echo not uglifying web app js...;
@@ -141,7 +142,7 @@ if checkTarget "css all"; then
 	else
 		echo autoprefixing and minifying css...;
 		for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
-			"${POSTCSS}" "${CSS_FILES[${i}]}" --use autoprefixer --use cssnano | ./bin/exorcist --base "${CSS_DIR}" "${CSS_MIN_MAPS[${i}]}" > "${CSS_MIN_FILES[${i}]}";
+			"${POSTCSS}" "${CSS_FILES[${i}]}" --use autoprefixer --use cssnano | "${EXORCIST}" --base "${CSS_DIR}" "${CSS_MIN_MAPS[${i}]}" > "${CSS_MIN_FILES[${i}]}";
 		done
 	fi
 
