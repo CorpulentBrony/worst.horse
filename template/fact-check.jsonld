@@ -2,8 +2,8 @@
 {
 	"@context": "https://schema.org",
 	"@type": "ClaimReview",
-	"datePublished": "<!--# echo var="date_local" -->",
-	"url": "https://worst.horse/",
+	"datePublished": "<!--# echo var='date_local' -->",
+	"url": "https://<!--# echo var='host' -->/",
 	"itemReviewed": {
 		"@type": "CreativeWork",
 		"author": {
@@ -13,10 +13,10 @@
 		},
 		"datePublished": "2010-10-10"
 	},
-	"claimReviewed": "The worst horse is not either Applejack, Starlight Glimmer, or Sunset Shimmer",
+	"claimReviewed": "<!--# echo var='siteFactCheckClaim' -->",
 	"author": {
 		"@type": "Organization",
-		"url": "https://worst.horse"
+		"url": "https://<!--# echo var='host' -->"
 	},
 	"reviewRating": {
 		"@type": "Rating",

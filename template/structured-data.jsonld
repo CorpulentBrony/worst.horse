@@ -3,7 +3,7 @@
 	"@type": "WebPage",
 	"about": {
 		"@type": "Thing",
-		"description": "Informing the world exactly who worst horse is."
+		"description": "<!--# echo var='siteDescription' -->"
 	},
 	"accessMode": "visual",
 	"accessModeSufficient": "visual",
@@ -13,7 +13,6 @@
 		"alternateName": "horse fuckers",
 		"description": "People who like the TV show My Little Pony: Friendship is Magic way too much",
 		"image": "http://valleyadvocate.com/wp-content/uploads/2015/03/va11-brony-20151-e1426106036636.jpeg",
-		"mainEntityOfPage": "https://worst.horse",
 		"name": "brony audience",
 		"sameAs": "https://en.wikipedia.org/wiki/Bronies:_The_Extremely_Unexpected_Adult_Fans_of_My_Little_Pony"
 	},
@@ -44,13 +43,13 @@
 	},
 	"encoding": {
 		"@type": "MediaObject",
-		"contentUrl": "https://worst.horse",
+		"contentUrl": "https://<!--# echo var='host' -->",
 		"encodingFormat": "html"
 	},
 	"fileFormat": "text/html",
-	"headline": "Who is the worst horse?",
+	"headline": "<!--# echo var='siteHeadline' -->",
 	"isAccessibleForFree": true,
-	"keywords": "worst horse, worst pony, my little pony, brony, applejack, starlight glimmer, sunset shimmer",
+	"keywords": "<!--# echo var='siteKeywords' -->",
 	"license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
 	"material": "bits",
 	"provider": {
@@ -63,14 +62,13 @@
 		"sameAs": "https://derpibooru.org",
 		"url": "https://derpibooru.org"
 	},
-	"thumbnailUrl": "https://worst.horse/icon/150x150.png",
+	"thumbnailUrl": "https://<!--# echo var='host' -->/icon/150x150.png",
 	"timeRequired": "P45S",
 	"typicalAgeRange": "16-",
 	"additionalType": "https://schema.org/ItemPage",
-	"description": "Informing the world exactly who worst horse is.",
-	"image": "https://worst.horse/image",
-	"mainEntityOfPage": "https://worst.horse",
-	"name": "worst.horse",
-	"sameAs": "https://worst.horse",
-	"url": "https://worst.horse"
+	"description": "<!--# echo var='siteDescription' -->",
+	"image": "https://<!--# echo var='host' -->/image",
+	"name": "<!--# echo var='siteTitle' -->",
+	"sameAs": "https://<!--# echo var='host' -->",
+	"url": "https://<!--# echo var='host' -->"
 }

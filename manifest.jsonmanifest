@@ -1,7 +1,7 @@
 {
-	"name": "worst.horse",
-	"short_name": "worst.horse",
-	"description": "Informing the world exactly who worst horse is",
+	"name": "<!--# echo var='siteTitle' -->",
+	"short_name": "<!--# echo var='host' -->",
+	"description": "<!--# echo var='siteDescription' -->",
 	"author": "Corpulent Brony",
 	"background_color": "#fff",
 	"developer": {
@@ -31,7 +31,7 @@
 	"orientation": "any",
 	"related_applications": [{
 		"platform": "web",
-		"url": "https://worst.horse"
+		"url": "https://<!--# echo var='host' -->"
 	}],
 	"scope": "/",
 	"start_url": "/",

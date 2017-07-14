@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html 🦄>
+<html 🦄 🐎🐱>
 	<head itemscope itemtype="https://schema.org/WebSite">
 		<!--# include file="template/header.html" -->
-		<!-- <script async src="https://cdn.ampproject.org/v0.js"></script> -->
 		<script async src="js/index.min.js" type="application/javascript"></script>
 		<!-- the webcomponents-loader script is currently broken when used with pagespeed; i've included my own shim based on the original in index.js -->
 		<!-- <script async src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js" type="application/javascript"></script> -->
-		<title itemprop="name">Worst Horse</title>
+		<title itemprop="name"><!--# echo var="siteTitle" --></title>
 		<link async href="css/index.min.css" rel="stylesheet" type="text/css">
 		<!--# include file="template/favicon.html" -->
 	</head>
@@ -14,8 +13,8 @@
 		<main role="main">
 			<section>
 				<div class="center">
-					<noscript><header class="flex-child" role="banner"><h1 class="applejack">Worst Horse</h1></header></noscript>
-					<header class="flex-child" role="banner"><h1 class="hidden" id="header">Worst Horse</h1></header>
+					<noscript><header class="flex-child" role="banner"><h1 class="<!--# echo var='siteDefaultHeaderClass' -->"><!--# echo var="siteTitle" --></h1></header></noscript>
+					<header class="flex-child" role="banner"><h1 class="hidden" id="header"><!--# echo var="siteTitle" --></h1></header>
 					<div aria-live="polite" aria-relevant="all" class="flex-child" id="picture">
 						<noscript>
 							<!--# set var="noscript" value="yes" -->
@@ -37,15 +36,5 @@
 			<!--# set var="noscript" value="no" -->
 			<!--# include file="template/picture.html" -->
 		</template>
-<!--  		<template id="worst-horse-template">
-			<figure>
-				<picture id="pictureElement">
-					<slot name="sources"></slot>
-				</picture>
-				<figcaption>
-						<a id="anchorImage" rel="external" target="_blank">Image</a><span class="ifAuthor"> by <cite id="citeAuthor">some dude</cite></span><span id="ifSource"> (<a id="anchorSource" rel="external" target="_blank">source</a>)</span><span class="ifAuthor"> and</span> hosted by <a href="https://derpibooru.org" rel="external" target="_blank">Derpibooru</a>.
-				</figcaption>
-			</figure>
-		</template> -->
 	</body>
 </html> 
