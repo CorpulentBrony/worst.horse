@@ -6,4 +6,4 @@ This directory will include CSS and map files generated from [SASS](http://sass-
 * Files ending in `.min.css` represent files that were processed by [postcss](https://github.com/postcss/postcss)
 * Files ending in `.min.css.map` represent mapping files from the `.css` files to the `.min.css` files
 
-The actual sources for these files is in the [`scss`](scss) directory.
+The actual sources for these files is in the [`scss`](../scss) directory.

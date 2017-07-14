@@ -9,11 +9,11 @@ This directory contains various tools used by `npm install` to build [JavaScript
 		Small build script with two parameters.  The first can be:
 		<dl>
 			<dt><code>css</code></dt>
-			<dd>Will build all CSS files into the <code><a href="css">css</a></code> directory</dd>
+			<dd>Will build all CSS files into the <code><a href="../css">css</a></code> directory</dd>
 			<dt><code>web</code></dt>
-			<dd>Will build all client side JS files into the <code><a href="js">js</a></code> directory and will minify JSON-LD files in the <code><a href="template">template</a></code> directory</dd>
+			<dd>Will build all client side JS files into the <code><a href="../js">js</a></code> directory and will minify JSON-LD files in the <code><a href="../template">template</a></code> directory</dd>
 			<dt><code>server</code></dt>
-			<dd>Will build all server side JS files into the <code><a href="js/server">js/server</a></code> directory</dd>
+			<dd>Will build all server side JS files into the <code><a href="../js/server">js/server</a></code> directory</dd>
 			<dt><code>js</code></dt>
 			<dd>Will build all JS files into the <code>js</code> directory.  Basically equivalent of running <code>web</code> and <code>server</code>, except this command will clear the <code>js</code> directory first and will not minify JSON-LD files</dd>
 			<dt><code>json</code></dt>
