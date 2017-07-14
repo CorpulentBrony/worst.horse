@@ -14,14 +14,16 @@ $heights: (
 );
 $heights: map-merge($heights, (
 	picture: map-get($heights, img) + map-get($heights, figcaption),
-	footer: map-get($heights, footer-line) * 2,
+	footer: map-get($heights, footer-line) * 2
 ));
+$heights: map-merge($heights, (total: map-get($heights, header) + map-get($heights, picture) + map-get($heights, footer)));
+$width-total: 100vw;
 
 @function height($height) { @return map-get($heights, $height); }
 
 head, html, body {
 	font-family: "Open Sans", "Verdana", sans-serif;
-	height: 100vh;
+	height: height(total);
 	margin: 0;
 	overflow: hidden;
 	padding: 0;
@@ -42,15 +44,15 @@ body > main > section {
 		$margin: 1vmin;
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
-		max-height: 100vh;
-		max-width: 100vw;
-		width: 100vh;
+		height: height(total);
+		max-height: height(total);
+		max-width: $width-total;
+		width: $width-total; // this used to be 100vh for some reason????????
 
 		div#picture {
 			height: height(picture);
 
-			> img#placeholder { padding-bottom: 10vh; }
+			> img#placeholder { padding-bottom: height(footer); }
 
 			> figure {
 				height: height(picture); 
@@ -65,7 +67,7 @@ body > main > section {
 			img {
 				height: height(img);
 				object-fit: contain;
-				width: 100vw;
+				width: $width-total;
 			}
 		}
 
@@ -82,11 +84,22 @@ body > main > section {
 			font-weight: 300; 
 			height: height(footer);
 
-			> div#github { font-size: 2.3vmin; }
+			div:nth-child(2) { font-size: 2.3vmin; }
 
-			> div > a {
-				margin-left: $margin;
-				margin-right: $margin;
+			div:nth-child(2) > a { display: inline-flex; }
+
+			div:nth-child(2) > a > img {
+				height: 3.5vmin;
+				width: 3.5vmin;
+			}
+
+			// > div > a {
+			// 	margin-left: $margin;
+			// 	margin-right: $margin;
+			// }
+
+			> div > a:before, > div > a:after {
+				content: " ";
 			}
 
 			> .flex-child { height: height(footer-line); }

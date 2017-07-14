@@ -1,0 +1,14 @@
+{
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	"url": "https://worst.horse/",
+	"logo": "https://worst.horse/icon/256x256.png",
+	"name": "Worst Horse",
+	"description": "Informing the world exactly who worst horse is.",
+	"image": "https://worst.horse/icon/256x256.png",
+	"sameAs": [
+		"https://twitter.com/CorpulentBrony",
+		"https://www.youtube.com/c/CorpulentBrony",
+		"https://github.com/CorpulentBrony/worst.horse"
+	]
+}

@@ -1,0 +1,28 @@
+<!--# config timefmt="%Y-%m-%d" -->
+{
+	"@context": "https://schema.org",
+	"@type": "ClaimReview",
+	"datePublished": "<!--# echo var="date_local" -->",
+	"url": "https://worst.horse/",
+	"itemReviewed": {
+		"@type": "CreativeWork",
+		"author": {
+			"@type": "Organization",
+			"name": "Bronies",
+			"sameAs": "https://en.wikipedia.org/wiki/Bronies:_The_Extremely_Unexpected_Adult_Fans_of_My_Little_Pony"
+		},
+		"datePublished": "2010-10-10"
+	},
+	"claimReviewed": "The worst horse is not either Applejack, Starlight Glimmer, or Sunset Shimmer",
+	"author": {
+		"@type": "Organization",
+		"url": "https://worst.horse"
+	},
+	"reviewRating": {
+		"@type": "Rating",
+		"ratingValue": 1,
+		"bestRating": 5,
+		"worstRating": 1,
+		"alternateName": "False"
+	}
+}

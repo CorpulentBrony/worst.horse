@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 40 64">
+	<g>
+		<title>Ethereum</title>
+		<desc>Ethereum logo</desc>
+		<polygon points="20,4 0,44 20,52 40,44" fill="#57618f"/>
+		<polygon points="20,4 20,52 20,52 40,44" fill="#515b85"/>
+		<polygon points="20,52 0,44 20,28 40,44" fill="#495279"/>
+		<polygon points="20,52 20,44 20,28 40,44" fill="#444b6f"/>
+		<polygon points="20,68 0,48 20,56 40,48" fill="#57618f"/>
+		<polygon points="20,68 20,48 20,56 40,48" fill="#515b85"/>
+	</g>
+</svg>

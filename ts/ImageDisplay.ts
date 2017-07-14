@@ -88,7 +88,7 @@ export class ImageDisplay {
 				this.preload = source.src;
 				const img: HTMLImageElement = Util.createElement<HTMLImageElement>("img", {
 					alt: horseNameFormatted + " is worst horse",
-					class: HIDDEN_CLASS + " image",
+					class: "image",
 					height: this.object.dimensions.height.toString(),
 					itemprop: "image",
 					longdesc: this.object.pageUrl,
@@ -109,9 +109,7 @@ export class ImageDisplay {
 
 					if ("URL" in window && "revokeObjectURL" in window.URL)
 						window.URL.revokeObjectURL(placeholderSrc);
-					img.classList.remove(HIDDEN_CLASS);
-					Util.doIfElementExistsById<HTMLElement>("pictureCaption", (caption: HTMLElement): void => caption.classList.remove(INVISIBLE_CLASS));
-					Util.doIfElementExistsById<HTMLElement>("footer", (footer: HTMLElement): void => footer.classList.remove(INVISIBLE_CLASS));
+					Util.doIfElementExistsById<HTMLElement>("pictureFigure", (caption: HTMLElement): void => caption.classList.remove(HIDDEN_CLASS));
 					Util.doIfElementExistsById<HTMLDivElement>(LOADING_DIV_ID, (div: HTMLDivElement): void => div.remove());
 					img.removeEventListener("load", onLoad);
 					img.removeEventListener("error", onError);

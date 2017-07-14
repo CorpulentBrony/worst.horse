@@ -10,7 +10,7 @@ TEMPLATE_DIR="template/";
 # files
 declare -a _CSS_NAMES=("index" "loading");
 _INDEX_NAME="index";
-_STRUCTURED_DATA_NAME="structured-data";
+declare -a _STRUCTURED_DATA_NAMES=("structured-data" "fact-check" "logo");
 SERVER_APP_JS="${JS_DIR}server/index.js";
 TSCONFIG_WEB="tsconfig.web.json";
 
@@ -27,7 +27,6 @@ UGLIFYJS="${BIN_DIR}uglifyjs";
 # less configurable file stuff
 _INDEX_CSS_DIR="${CSS_DIR}${_INDEX_NAME}";
 _INDEX_JS_DIR="${JS_DIR}${_INDEX_NAME}";
-_STRUCTURED_DATA_DIR="${TEMPLATE_DIR}${_STRUCTURED_DATA_NAME}";
 INDEX_CSS="${_INDEX_CSS_DIR}.css";
 INDEX_CSS_MAP="${INDEX_CSS}.map";
 INDEX_JS="${_INDEX_JS_DIR}.js";
@@ -39,8 +38,7 @@ INDEX_OUT_JS="${_INDEX_JS_DIR}.out.js";
 INDEX_OUT_JS_MAP="${INDEX_OUT_JS}.map";
 INDEX_SCSS="${SCSS_DIR}${_INDEX_NAME}.scss";
 NUM_CSS_FILES=${#_CSS_NAMES[@]};
-STRUCTURED_DATA="${_STRUCTURED_DATA_DIR}.jsonld";
-STRUCTURED_DATA_MIN="${_STRUCTURED_DATA_DIR}.min.jsonld";
+NUM_STRUCTURED_DATA_FILES=${#_STRUCTURED_DATA_NAMES[@]};
 
 # build _CSS_DIRS, CSS_FILES, CSS_MAPS, CSS_MIN_FILES, CSS_MIN_MAPS, and SCSS_FILES
 for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
@@ -50,6 +48,13 @@ for ((i=0; ${i}<${NUM_CSS_FILES}; i++)); do
 	CSS_MIN_FILES[${i}]="${_CSS_DIRS[${i}]}.min.css";
 	CSS_MIN_MAPS[${i}]="${CSS_MIN_FILES[${i}]}.map";
 	SCSS_FILES[${i}]="${SCSS_DIR}${_CSS_NAMES[${i}]}.scss";
+done
+
+# build _STRUCTURED_DATA_DIRS, STRUCTURED_DATA_FILES, STRUCTURED_DATA_MIN_FILES
+for ((i=0; ${i}<${NUM_STRUCTURED_DATA_FILES}; i++)); do
+	_STRUCTURED_DATA_DIRS[${i}]="${TEMPLATE_DIR}${_STRUCTURED_DATA_NAMES[${i}]}";
+	STRUCTURED_DATA_FILES[${i}]="${_STRUCTURED_DATA_DIRS[${i}]}.jsonld";
+	STRUCTURED_DATA_MIN_FILES[${i}]="${_STRUCTURED_DATA_DIRS[${i}]}.min.jsonld";
 done
 
 checkRegex() {
@@ -116,10 +121,14 @@ fi
 if checkTarget "json web all"; then
 	if [ "${2}" = "debug" ]; then
 			echo not minifying json...;
-			cp "${STRUCTURED_DATA}" "${STRUCTURED_DATA_MIN}";
+			for ((i=0; ${i}<${NUM_STRUCTURED_DATA_FILES}; i++)); do
+				cp "${STRUCTURED_DATA_FILES[${i}]}" "${STRUCTURED_DATA_MIN_FILES[${i}]}";
+			done
 		else
 			echo minifying json...;
-			"${HTML_MINIFIER}" --collapse-inline-tag-whitespace --collapse-whitespace --process-scripts ["application/ld+json"] --quote-character "\"" --remove-comments --output "${STRUCTURED_DATA_MIN}" "${STRUCTURED_DATA}";
+			for ((i=0; ${i}<${NUM_STRUCTURED_DATA_FILES}; i++)); do
+				"${HTML_MINIFIER}" --collapse-inline-tag-whitespace --collapse-whitespace --process-scripts ["application/ld+json"] --quote-character "\"" --output "${STRUCTURED_DATA_MIN_FILES[${i}]}" "${STRUCTURED_DATA_FILES[${i}]}";
+			done
 		fi
 fi
 
